@@ -1,6 +1,8 @@
 import Usuario from "../models/Usuario.js"
 import {sendMailToActiveAccount, sendMailToRecoveryPassword} from "../config/nodemailer.js"
+import { crearTokenJWT } from "../middlewares/JWT.js"
 
+//Endpoint Iniciar Sesion
 const login = async (req,res)=>{
     const {email,password,rol} = req.body
     //Validacion campos formulario vacio
@@ -21,7 +23,7 @@ const login = async (req,res)=>{
     if(rol !== usuarioBDD.rol) return res.status(401).json({msg:"El usuario no tiene permiso para ese perfil...."})
     
     //Validacion por cada rol
-    if(usuarioBDD.rol === "admin"){
+    if(usuarioBDD.rol === 'admin'){
         //Validacion si la cuenta no ha sido activada
         if(!usuarioBDD.confirmEmail){
             const token = usuarioBDD.crearToken();
@@ -33,14 +35,16 @@ const login = async (req,res)=>{
             });
         } else{
             usuarioBDD.activo = true;
+            await usuarioBDD.save()
+            const token = crearTokenJWT(usuarioBDD._id, usuarioBDD.rol)
             return res.status(200).json({
           msg: "Usuario registrado. Bienvenido",
+          token,
           usuario: {
-        nombre: usuarioBDD.nombre,
-        email: usuarioBDD.email,
-        rol: usuarioBDD.rol
+            nombre: usuarioBDD.nombre,
+            email: usuarioBDD.email,
+            rol: usuarioBDD.rol
     }
-  //token: crearTokenJWT(usuarioBDD._id) // si usas JWT
 });
         }       
     }else{
@@ -49,6 +53,7 @@ const login = async (req,res)=>{
     await usuarioBDD.save()
 
 }
+//Endpoint para registrar usuario pero solo Pacientes
 const registrar = async (req, res) => {
     const { nombre, apellido, email, password } = req.body;
 
@@ -113,6 +118,8 @@ const crearNuevoPassword = async (req,res)=>{
     await usuarioBDD.save()
     res.status(200).json({msg:"Felicitaciones, ya puedes iniciar sesión con tu nuevo password"}) 
 }
+
+
 export{
     login,
     recuperarPassword,
@@ -120,3 +127,4 @@ export{
     registrar,
     crearNuevoPassword
 }
+    

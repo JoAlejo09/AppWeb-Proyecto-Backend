@@ -18,35 +18,6 @@ const registro = async (req,res)=>{
     res.status(200).json({msg:"Usuario Creado"})
 }
 
-/*
-const login = async (req,res)=>{
-    const {email, password} = req.body
-    //VALIDA CAMPOS VACIOS
-    if (Object.values(req.body).includes("")) return res.status(400).json({msg:"Lo sentimos, debes llenar todos los campos"})
-    const administradorBDD = await Usuario.findOne({email});
-    //VALIDA SI EXISTE EL USUARIO
-    if(!administradorBDD) return res.status(400).json({msg:"Usuario No Encontrado"});    
-    //VALIDA QUE EL ROL ELEGIDO SEA EL CORRECTO
-    if(!req.rol === administradorBDD.rol) return res.status(401).json({msg:"El usuario no tiene permiso para ese perfil"})
-    if (!administradorBDD.confirmEmail){
-        const token = administradorBDD.crearToken();
-        await sendMailToActiveAccount(email,token);
-        return res.status(401).json({
-            msg:"Tu cuenta no esta activa. Revisa tu correo para activarla"
-        });
-    }
-    //VALIDA PASSWORD
-    const validPassword = await administradorBDD.matchPassword(password);
-    if (!validPassword) return res.status(401).json({ msg: "Contraseña incorrecta" });
-
-    const token = jwt.sign(
-        {id: administradorBDD._id, email:administradorBDD.email},
-        process.env.JWT_SECRET,
-        {expiresIn:'1d'}
-    );
-    
-    res.json({ token, usuario: { email: usuario.email, nombre: usuario.nombre } });
-}*/
 const activarCuenta = async (req, res) =>{
     const token = req.params.token
         console.log(token)
@@ -58,9 +29,51 @@ const activarCuenta = async (req, res) =>{
     administradorBDD.confirmEmail = true
     await administradorBDD.save()
     res.status(200).json({msg:"Token confirmado, ya puedes iniciar sesión"}) 
+}
 
+//DESARROLLO DE LA INFORMACION PARA PERFIL DE ADMINISTRADOR Y ENVIO DE TODOS LOS PARAMETROS
+const perfilAdmin = (req, res)=>{
+    const {token, confirmEmail,createdAt, updateAt, __v, ...datosPerfil} = req.usuario;
+    return res.status(200).json(datosPerfil)
+}
+const actualizarPerfilAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { nombre, apellido, telefono } = req.body;
+
+    // Validar ID
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(404).json({ msg: `Lo sentimos, ID inválido` });
+    }
+
+    // Validar campos obligatorios
+    if (!nombre || !apellido) {
+      return res.status(400).json({ msg: "Nombre y apellido son obligatorios" });
+    }
+
+    // Buscar usuario
+    const usuario = await Usuario.findById(id);
+    if (!usuario) {
+      return res.status(404).json({ msg: "Administrador no encontrado" });
+    }
+
+    // Proteger campos que no deben cambiarse
+    usuario.nombre = nombre;
+    usuario.apellido = apellido;
+    usuario.telefono = telefono || usuario.telefono;
+
+    await usuario.save();
+
+    return res.status(200).json({ msg: "Perfil actualizado correctamente" });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ msg: "Error del servidor" });
+  }
 }
 export{
     registro,
-    activarCuenta
+    activarCuenta,
+    perfilAdmin,
+    actualizarPerfilAdmin
 }
