@@ -61,6 +61,16 @@ const registrar = async (req, res) => {
     if (!nombre || !apellido || !email || !password) {
         return res.status(400).json({ msg: "Todos los campos son obligatorios" });
     }
+    // Validar email con expresión regular
+    const regexEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!regexEmail.test(email)) {
+        return res.status(400).json({ msg: "Formato de correo inválido" });
+    }
+
+    // Validar longitud mínima del password
+    if (password.length < 6) {
+        return res.status(400).json({ msg: "La contraseña debe tener al menos 6 caracteres" });
+    }
 
     // Verificar si el usuario ya existe
     const existeUsuario = await Usuario.findOne({ email });
@@ -70,14 +80,14 @@ const registrar = async (req, res) => {
 
     try {
         // Crear nuevo usuario
-        const nuevoUsuario = new Usuario({ nombre, apellido, email, password });
+        const nuevoUsuario = new Usuario({ nombre, apellido, email, password, rol:'paciente'});
         nuevoUsuario.password = await nuevoUsuario.encrypPassword(password);
 
         // Generar token de activación y enviar email
         const token = nuevoUsuario.crearToken();
         nuevoUsuario.token = token
         await nuevoUsuario.save();
-        await sendMailToActiveAccount(email, token);
+        await sendMailToActiveAccountPaciente(email, token);
 
         res.status(200).json({ msg: "Usuario registrado, revisa tu correo para activar la cuenta" });
     } catch (error) {
@@ -85,6 +95,7 @@ const registrar = async (req, res) => {
         res.status(500).json({ msg: "Error en el registro" });
     }
 };
+
 const recuperarPassword = async(req,res)=>{
     const {email} = req.body
     if (Object.values(req.body).includes("")) {

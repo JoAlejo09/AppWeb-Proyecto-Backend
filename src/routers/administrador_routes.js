@@ -11,11 +11,6 @@ router.get('/activar/:token', activarCuenta)
 
 router.get('/perfil', verificarTokenJWT, validarAdmin, perfilAdmin)
 
-router.put('/perfil/:id',verificarTokenJWT, (req,res,next)=>{
-    if (req.usuario.rol !== 'admin') {
-    return res.status(403).json({ msg: 'Acceso denegado' });
-  }
-  next();
-}, actualizarPerfilAdmin)
+router.put('/perfil/:id',verificarTokenJWT, validarAdmin, actualizarPerfilAdmin)
 
 export default router
