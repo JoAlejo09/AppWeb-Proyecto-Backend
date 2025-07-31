@@ -1,5 +1,5 @@
 import Usuario from "../models/Usuario.js"
-import {sendMailToActiveAccount, sendMailToRecoveryPassword} from "../config/nodemailer.js"
+import {sendMailToActiveAccount, sendMailToActiveAccountPaciente, sendMailToRecoveryPasswordAdministrador, sendMailToRecoveryPasswordPaciente} from "../config/nodemailer.js"
 import { crearTokenJWT } from "../middlewares/JWT.js"
 
 //Endpoint Iniciar Sesion
@@ -48,10 +48,28 @@ const login = async (req,res)=>{
 });
         }       
     }else{
-            //CODIGO PARA PACIENTE 
+        if(usuarioBDD.rol === 'paciente'){
+            if(!usuarioBDD.confirmEmail){
+                const token = usuarioBDD.crearToken();
+                usuarioBDD.token = token;
+                await usuarioBDD.save();
+                await sendMailToActiveAccountPaciente(email, token);
+                return res.status(401).json({msg: "Tu cuenta no está activa. Revisa tu correo para activarla."});
+            }
+            usuarioBDD.activo=true;
+            await usuarioBDD.save();
+            const token = crearTokenJWT(usuario._id, usuarioBDD.rol);
+            return res.status(200).json({
+                msg: "Paciente autenticado correctamente.",
+                token,
+                usuario: {
+                    nombre: usuarioBDD.nombre,
+                    email: usuarioBDD.email,
+                    rol: usuarioBDD.rol
+                }
+            });
+        }
     }
-    await usuarioBDD.save()
-
 }
 //Endpoint para registrar usuario pero solo Pacientes
 const registrar = async (req, res) => {
@@ -107,7 +125,12 @@ const recuperarPassword = async(req,res)=>{
     }
     const token = usuarioBDD.crearToken()
     usuarioBDD.token = token
-    await sendMailToRecoveryPassword(email,token)
+    if (usuarioBDD.rol === "paciente") {
+        await sendMailToRecoveryPasswordPaciente(email, token);
+    } else if (usuarioBDD.rol === "administrador") {
+        await sendMailToRecoveryPasswordAdministrador(email, token);
+    }
+//    await sendMailToRecoveryPassword(email,token)
     await usuarioBDD.save()
     res.status(200).json({msg:"Revisa tu correo electrónico para reestablecer tu cuenta"})
 }

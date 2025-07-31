@@ -51,7 +51,7 @@ const sendMailToActiveAccount = (userMail, token) => {
         }
     })
 }
-const sendMailToRecoveryPassword = async (userMail, token) => {
+const sendMailToRecoveryPasswordAdministrador= async (userMail, token) => {
   const resetLink = `${process.env.URL_FRONTEND}nuevo-password/${token}`;
 
   try {
@@ -121,8 +121,51 @@ const sendMailToActiveAccountPaciente = async (userMail, token) =>{
         }
     })
 }
+const sendMailToRecoveryPasswordPaciente= async (userMail, token) => {
+  const resetLink = `${process.env.URL_FRONTEND}nuevo-password/${token}`;
+
+  try {
+    const info = await transporter.sendMail({
+      from: '"MentalAPP - ESFOT" <no-reply@esfot.edu.ec>',
+      to: userMail,
+      subject: "Reestablece tu contraseña - MentalAPP",
+      html: `
+        <!DOCTYPE html>
+        <html lang="es">
+        <head>
+          <meta charset="UTF-8">
+          <title>Reestablecer contraseña</title>
+        </head>
+        <body style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 20px;">
+          <div style="max-width: 600px; margin: auto; background-color: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h2 style="color: #6b46c1;">MentalAPP - Recuperación de contraseña</h2>
+            <p>Hola,</p>
+            <p>Hemos recibido una solicitud para restablecer tu contraseña. Si fuiste tú quien la solicitó, haz clic en el siguiente botón:</p>
+            <p style="text-align: center;">
+              <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; background-color: #6b46c1; color: white; text-decoration: none; border-radius: 5px;">
+                Restablecer contraseña
+              </a>
+            </p>
+            <p>O copia y pega el siguiente enlace en tu navegador:</p>
+            <p style="word-break: break-all;">${resetLink}</p>
+            <hr>
+            <p style="font-size: 0.9em; color: #777;">Si no solicitaste este cambio, puedes ignorar este mensaje.</p>
+            <footer style="font-size: 0.9em; color: #999; text-align: center;">
+              El equipo de MentalAPP - ESFOT
+            </footer>
+          </div>
+        </body>
+        </html>
+      `
+    });
+    console.log("Mensaje enviado satisfactoriamente:", info.messageId);
+  } catch (error) {
+    console.error("Error al enviar el correo:", error);
+  }
+};
 export {
     sendMailToActiveAccount,
-    sendMailToRecoveryPassword,
+    sendMailToRecoveryPasswordAdministrador,
+    sendMailToRecoveryPasswordPaciente,
     sendMailToActiveAccountPaciente
 }
