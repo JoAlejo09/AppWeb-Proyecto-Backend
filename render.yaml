@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: backend-mern
+    env: node
+    region: oregon
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 3000
+      - key: MONGODB_URI_PRODUCTION
+        value: mongodb+srv://josep:po553rB6nHWCBMqI@clusterproyectp.wi8jsvt.mongodb.net/mentalDB
+      - key: JWT_SECRET
+        value: asnddjqwbdhasbd1823y18jsasdnasjdn123
