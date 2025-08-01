@@ -6,3 +6,6 @@ const validarAdmin = (req,res,next) =>{
     }
     next();
 }
+export{
+    validarAdmin
+}
