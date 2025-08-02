@@ -44,9 +44,8 @@ const login = async (req,res)=>{
             nombre: usuarioBDD.nombre,
             email: usuarioBDD.email,
             rol: usuarioBDD.rol
-    }
-});
-        }       
+         }
+            });  
     }else{
         if(usuarioBDD.rol === 'paciente'){
             if(!usuarioBDD.confirmEmail){
@@ -55,21 +54,23 @@ const login = async (req,res)=>{
                 await usuarioBDD.save();
                 await sendMailToActiveAccountPaciente(email, token);
                 return res.status(401).json({msg: "Tu cuenta no está activa. Revisa tu correo para activarla."});
+            }else{
+                usuarioBDD.activo=true;
+                await usuarioBDD.save();
+                const token = crearTokenJWT(usuario._id, usuarioBDD.rol);
+                return res.status(200).json({
+                    msg: "Paciente autenticado correctamente.",
+                    token,
+                    usuario: {
+                        nombre: usuarioBDD.nombre,
+                        email: usuarioBDD.email,
+                        rol: usuarioBDD.rol
+                    }
+                });
             }
-            usuarioBDD.activo=true;
-            await usuarioBDD.save();
-            const token = crearTokenJWT(usuario._id, usuarioBDD.rol);
-            return res.status(200).json({
-                msg: "Paciente autenticado correctamente.",
-                token,
-                usuario: {
-                    nombre: usuarioBDD.nombre,
-                    email: usuarioBDD.email,
-                    rol: usuarioBDD.rol
-                }
-            });
         }
     }
+}
 }
 //Endpoint para registrar usuario pero solo Pacientes
 const registrar = async (req, res) => {

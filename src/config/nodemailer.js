@@ -54,8 +54,7 @@ const sendMailToActiveAccount = (userMail, token) => {
 const sendMailToRecoveryPasswordAdministrador= async (userMail, token) => {
   const resetLink = `${process.env.URL_FRONTEND}nuevo-password/${token}`;
 
-  try {
-    const info = await transporter.sendMail({
+    let mailOptions = {
       from: '"MentalAPP - ESFOT" <no-reply@esfot.edu.ec>',
       to: userMail,
       subject: "Reestablece tu contraseña - MentalAPP",
@@ -87,11 +86,14 @@ const sendMailToRecoveryPasswordAdministrador= async (userMail, token) => {
         </body>
         </html>
       `
-    });
-    console.log("Mensaje enviado satisfactoriamente:", info.messageId);
-  } catch (error) {
-    console.error("Error al enviar el correo:", error);
-  }
+    };
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+            console.log(error);
+        } else {
+            console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
+        }
+    })
 };
 
 const sendMailToActiveAccountPaciente = async (userMail, token) =>{
