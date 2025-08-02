@@ -43,6 +43,18 @@ const usuarioSchema = new Schema({
   activo: {
     type: Boolean,
     default: true
+  },
+  imagen:{
+    type: String,
+    trim: true
+  },
+  imagenID:{
+    type:String,
+    trim: true
+  },
+  imagenIA:{
+    type:String,
+    trim:true
   }
 }, {
   timestamps: true

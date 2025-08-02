@@ -1,6 +1,9 @@
 import Usuario from "../models/Usuario.js"
 import {sendMailToActiveAccount, sendMailToActiveAccountPaciente, sendMailToRecoveryPasswordAdministrador, sendMailToRecoveryPasswordPaciente} from "../config/nodemailer.js"
 import { crearTokenJWT } from "../middlewares/JWT.js"
+import {v2 as cloudinary} from 'cloudinary'
+import fs from "fs-extra"
+import mongoose from "mongoose"
 
 //Endpoint Iniciar Sesion
 const login = async (req,res)=>{
@@ -95,6 +98,7 @@ const registrar = async (req, res) => {
         return res.status(400).json({ msg: "El usuario ya existe" });
     }
 
+
     try {
         // Crear nuevo usuario
         const nuevoUsuario = new Usuario({ nombre, apellido, email, password, rol:'paciente'});
@@ -103,10 +107,31 @@ const registrar = async (req, res) => {
         // Generar token de activación y enviar email
         const token = nuevoUsuario.crearToken();
         nuevoUsuario.token = token
+        if(req.files?.image){
+            const {secure_url,  public_id} = await cloudinary.uploader.upload(req.files.imagen.tempFilePath,{folder:'ImagenUsuario'})
+            nuevoUsuario.ImagenUsuario = secure_url
+            nuevoUsuario.ImagenID = public_id
+            await fs.unlink(req.files.imagen.tempFilePath)        
+        }
+        if(req.body?.imagenIA){
+            const base64Data = req.body.avatarMascotaIA.replace(/^data:image\/\w+;base64,/, '')
+            const buffer = Buffer.from(base64Data, 'base64')
+            const { secure_url } = await new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream({folder:'ImagenUsuario',resource_type:'auto'},(error, response)=>{
+                    if(error){
+                        reject(error)
+                    }else{
+                        resolve(response)
+                    }
+                })
+                stream.end(buffer)
+            })
+            nuevoUsuario.imagenIA = secure_url
+        }
         await nuevoUsuario.save();
         await sendMailToActiveAccountPaciente(email, token);
 
-        res.status(200).json({ msg: "Usuario registrado, revisa tu correo para activar la cuenta" });
+        res.status(201).json({ msg: "Usuario registrado, revisa tu correo para activar la cuenta" });
     } catch (error) {
         console.log(error);
         res.status(500).json({ msg: "Error en el registro" });
