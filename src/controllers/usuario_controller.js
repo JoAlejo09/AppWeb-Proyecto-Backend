@@ -33,21 +33,21 @@ const login = async (req,res)=>{
             return res.status(401).json({
                 msg:"Tu cuenta no esta activa. Revisa tu correo para activarla"
             });
-        } else{
+        }else{
             usuarioBDD.activo = true;
             await usuarioBDD.save()
             const token = crearTokenJWT(usuarioBDD._id, usuarioBDD.rol)
             return res.status(200).json({
-          msg: "Usuario registrado. Bienvenido",
-          token,
-          usuario: {
-            nombre: usuarioBDD.nombre,
-            email: usuarioBDD.email,
-            rol: usuarioBDD.rol
-         }
+              msg: "Usuario registrado. Bienvenido",
+              token,
+              usuario: {
+                nombre: usuarioBDD.nombre,
+                email: usuarioBDD.email,
+                rol: usuarioBDD.rol
+                }
             });  
-    }else{
-        if(usuarioBDD.rol === 'paciente'){
+        }
+    }else if(usuarioBDD.rol === 'paciente'){
             if(!usuarioBDD.confirmEmail){
                 const token = usuarioBDD.crearToken();
                 usuarioBDD.token = token;
@@ -70,8 +70,6 @@ const login = async (req,res)=>{
             }
         }
     }
-}
-}
 //Endpoint para registrar usuario pero solo Pacientes
 const registrar = async (req, res) => {
     const { nombre, apellido, email, password } = req.body;
@@ -131,7 +129,6 @@ const recuperarPassword = async(req,res)=>{
     } else if (usuarioBDD.rol === "administrador") {
         await sendMailToRecoveryPasswordAdministrador(email, token);
     }
-//    await sendMailToRecoveryPassword(email,token)
     await usuarioBDD.save()
     res.status(200).json({msg:"Revisa tu correo electrónico para reestablecer tu cuenta"})
 }
