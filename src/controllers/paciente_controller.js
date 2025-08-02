@@ -1,6 +1,6 @@
 import Usuario from "../models/Usuario";
 
-const activarCuentaPaciente = async (req,res)=>{
+const confirmarCuentaPaciente = async (req,res)=>{
     const{token} = req.params;
 
     try{
@@ -32,7 +32,7 @@ const obtenerPerfilPaciente = (req, res) => {
 };
 
 export{
-    activarCuentaPaciente,
+    cctivarCuentaPaciente,
     obtenerPerfilPaciente,
 
 }
