@@ -1,4 +1,4 @@
-import Usuario from "../models/Usuario..js";
+import Usuario from "../models/Usuario.js";
 
 const confirmarCuentaPaciente = async (req,res)=>{
     const{token} = req.params;
