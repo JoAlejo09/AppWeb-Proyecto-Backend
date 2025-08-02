@@ -109,8 +109,8 @@ const registrar = async (req, res) => {
         nuevoUsuario.token = token
         if(req.files?.image){
             const {secure_url,  public_id} = await cloudinary.uploader.upload(req.files.imagen.tempFilePath,{folder:'ImagenUsuario'})
-            nuevoUsuario.ImagenUsuario = secure_url
-            nuevoUsuario.ImagenID = public_id
+            nuevoUsuario.imagenUsuario = secure_url
+            nuevoUsuario.imagenID = public_id
             await fs.unlink(req.files.imagen.tempFilePath)        
         }
         if(req.body?.imagenIA){
