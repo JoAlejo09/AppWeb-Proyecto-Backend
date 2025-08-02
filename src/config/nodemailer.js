@@ -98,7 +98,7 @@ const sendMailToActiveAccountPaciente = async (userMail, token) =>{
     let mailOptions ={
         from: '"MentalAPP - ESFOT" <no-reply@esfot.edu.ec>',
         to: userMail,
-        subject: "Activación de cuenta de administrador",
+        subject: "Activación de cuenta de Paciente",
         html:`
             <div style="font-family: Arial, sans-serif; padding: 20px;">
                 <h2>Hola 👋,</h2>
