@@ -23,7 +23,9 @@ async (accessToken, refreshToken, profile, done)=>{
         }
         return done(null, usuario);
     } catch(error){
+        console.error('Error en GoogleStrategy:', error); // <--
         return done(error, false);
+        
     }
 }));
 
