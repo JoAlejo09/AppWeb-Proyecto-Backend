@@ -32,7 +32,7 @@ const obtenerPerfilPaciente = (req, res) => {
 };
 
 export{
-    cctivarCuentaPaciente,
+    confirmarCuentaPacienteCuentaPaciente,
     obtenerPerfilPaciente,
 
 }
