@@ -104,7 +104,7 @@ const sendMailToActiveAccountPaciente = async (userMail, token) =>{
                 <h2>Hola 👋,</h2>
                 <p>Gracias por registrarte en nuestra plataforma de seguimiento de salud mental.</p>
                 <p>Para activar tu cuenta, haz clic en el siguiente enlace:</p>
-                <a href="${process.env.FRONTEND_URL}/pacientes/confirmar/${token}" 
+                <a href="${process.env.URL_FRONTEND}/pacientes/confirmar/${token}" 
                     style="display:inline-block;padding:10px 20px;margin:20px 0;background-color:#007bff;color:white;text-decoration:none;border-radius:5px;">
                 Activar cuenta
                 </a>
