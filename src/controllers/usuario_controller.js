@@ -60,7 +60,7 @@ const login = async (req,res)=>{
             }else{
                 usuarioBDD.activo=true;
                 await usuarioBDD.save();
-                const token = crearTokenJWT(usuario._id, usuarioBDD.rol);
+                const token = crearTokenJWT(usuarioBDD._id, usuarioBDD.rol);
                 return res.status(200).json({
                     msg: "Paciente autenticado correctamente.",
                     token,
