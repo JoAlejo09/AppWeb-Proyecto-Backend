@@ -6,7 +6,7 @@ import {validarAdmin} from '../middlewares/VerificarAuth.js'
 
 const router = Router()
 
-router.post('/registro',registro)
+router.post('/registrar',registro)
 router.get('/activar/:token', activarCuenta)
 
 router.get('/perfil', verificarTokenJWT, validarAdmin, perfilAdmin)
