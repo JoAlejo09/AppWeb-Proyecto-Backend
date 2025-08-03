@@ -107,14 +107,14 @@ const registrar = async (req, res) => {
         // Generar token de activación y enviar email
         const token = nuevoUsuario.crearToken();
         nuevoUsuario.token = token
-        if(req.files?.image){
+        if(req.files?.imagen){
             const {secure_url,  public_id} = await cloudinary.uploader.upload(req.files.imagen.tempFilePath,{folder:'ImagenUsuario'})
             nuevoUsuario.imagenUsuario = secure_url
             nuevoUsuario.imagenID = public_id
             await fs.unlink(req.files.imagen.tempFilePath)        
         }
         if(req.body?.imagenIA){
-            const base64Data = req.body.avatarMascotaIA.replace(/^data:image\/\w+;base64,/, '')
+            const base64Data = req.body.imagenIA.replace(/^data:image\/\w+;base64,/, '')
             const buffer = Buffer.from(base64Data, 'base64')
             const { secure_url } = await new Promise((resolve, reject) => {
                 const stream = cloudinary.uploader.upload_stream({folder:'ImagenUsuario',resource_type:'auto'},(error, response)=>{
