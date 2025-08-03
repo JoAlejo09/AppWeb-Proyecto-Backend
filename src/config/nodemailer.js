@@ -54,8 +54,7 @@ const sendMailToActiveAccount = (userMail, token) => {
 const sendMailToRecoveryPasswordAdministrador= async (userMail, token) => {
   const resetLink = `${process.env.URL_FRONTEND}nuevo-password/${token}`;
 
-  try {
-    const info = await transporter.sendMail({
+    let mailOptions = {
       from: '"MentalAPP - ESFOT" <no-reply@esfot.edu.ec>',
       to: userMail,
       subject: "Reestablece tu contraseña - MentalAPP",
@@ -87,24 +86,27 @@ const sendMailToRecoveryPasswordAdministrador= async (userMail, token) => {
         </body>
         </html>
       `
-    });
-    console.log("Mensaje enviado satisfactoriamente:", info.messageId);
-  } catch (error) {
-    console.error("Error al enviar el correo:", error);
-  }
+    };
+    transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+            console.log(error);
+        } else {
+            console.log("Mensaje enviado satisfactoriamente: ", info.messageId);
+        }
+    })
 };
 
 const sendMailToActiveAccountPaciente = async (userMail, token) =>{
     let mailOptions ={
         from: '"MentalAPP - ESFOT" <no-reply@esfot.edu.ec>',
         to: userMail,
-        subject: "Activación de cuenta de administrador",
+        subject: "Activación de cuenta de Paciente",
         html:`
             <div style="font-family: Arial, sans-serif; padding: 20px;">
                 <h2>Hola 👋,</h2>
                 <p>Gracias por registrarte en nuestra plataforma de seguimiento de salud mental.</p>
                 <p>Para activar tu cuenta, haz clic en el siguiente enlace:</p>
-                <a href="${process.env.FRONTEND_URL}/pacientes/confirmar/${token}" 
+                <a href="${process.env.URL_FRONTEND}pacientes/confirmar/${token}" 
                     style="display:inline-block;padding:10px 20px;margin:20px 0;background-color:#007bff;color:white;text-decoration:none;border-radius:5px;">
                 Activar cuenta
                 </a>

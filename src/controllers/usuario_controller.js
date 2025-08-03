@@ -1,6 +1,9 @@
 import Usuario from "../models/Usuario.js"
 import {sendMailToActiveAccount, sendMailToActiveAccountPaciente, sendMailToRecoveryPasswordAdministrador, sendMailToRecoveryPasswordPaciente} from "../config/nodemailer.js"
 import { crearTokenJWT } from "../middlewares/JWT.js"
+import {v2 as cloudinary} from 'cloudinary'
+import fs from "fs-extra"
+import mongoose from "mongoose"
 
 //Endpoint Iniciar Sesion
 const login = async (req,res)=>{
@@ -33,44 +36,43 @@ const login = async (req,res)=>{
             return res.status(401).json({
                 msg:"Tu cuenta no esta activa. Revisa tu correo para activarla"
             });
-        } else{
+        }else{
             usuarioBDD.activo = true;
             await usuarioBDD.save()
             const token = crearTokenJWT(usuarioBDD._id, usuarioBDD.rol)
             return res.status(200).json({
-          msg: "Usuario registrado. Bienvenido",
-          token,
-          usuario: {
-            nombre: usuarioBDD.nombre,
-            email: usuarioBDD.email,
-            rol: usuarioBDD.rol
-    }
-});
-        }       
-    }else{
-        if(usuarioBDD.rol === 'paciente'){
+              msg: "Usuario registrado. Bienvenido",
+              token,
+              usuario: {
+                nombre: usuarioBDD.nombre,
+                email: usuarioBDD.email,
+                rol: usuarioBDD.rol
+                }
+            });  
+        }
+    }else if(usuarioBDD.rol === 'paciente'){
             if(!usuarioBDD.confirmEmail){
                 const token = usuarioBDD.crearToken();
                 usuarioBDD.token = token;
                 await usuarioBDD.save();
                 await sendMailToActiveAccountPaciente(email, token);
                 return res.status(401).json({msg: "Tu cuenta no está activa. Revisa tu correo para activarla."});
+            }else{
+                usuarioBDD.activo=true;
+                await usuarioBDD.save();
+                const token = crearTokenJWT(usuarioBDD._id, usuarioBDD.rol);
+                return res.status(200).json({
+                    msg: "Paciente autenticado correctamente.",
+                    token,
+                    usuario: {
+                        nombre: usuarioBDD.nombre,
+                        email: usuarioBDD.email,
+                        rol: usuarioBDD.rol
+                    }
+                });
             }
-            usuarioBDD.activo=true;
-            await usuarioBDD.save();
-            const token = crearTokenJWT(usuario._id, usuarioBDD.rol);
-            return res.status(200).json({
-                msg: "Paciente autenticado correctamente.",
-                token,
-                usuario: {
-                    nombre: usuarioBDD.nombre,
-                    email: usuarioBDD.email,
-                    rol: usuarioBDD.rol
-                }
-            });
         }
     }
-}
 //Endpoint para registrar usuario pero solo Pacientes
 const registrar = async (req, res) => {
     const { nombre, apellido, email, password } = req.body;
@@ -96,6 +98,7 @@ const registrar = async (req, res) => {
         return res.status(400).json({ msg: "El usuario ya existe" });
     }
 
+
     try {
         // Crear nuevo usuario
         const nuevoUsuario = new Usuario({ nombre, apellido, email, password, rol:'paciente'});
@@ -104,10 +107,31 @@ const registrar = async (req, res) => {
         // Generar token de activación y enviar email
         const token = nuevoUsuario.crearToken();
         nuevoUsuario.token = token
+        if(req.files?.imagen){
+            const {secure_url,  public_id} = await cloudinary.uploader.upload(req.files.imagen.tempFilePath,{folder:'ImagenUsuario'})
+            nuevoUsuario.imagenUsuario = secure_url
+            nuevoUsuario.imagenID = public_id
+            await fs.unlink(req.files.imagen.tempFilePath)        
+        }
+        if(req.body?.imagenIA){
+            const base64Data = req.body.imagenIA.replace(/^data:image\/\w+;base64,/, '')
+            const buffer = Buffer.from(base64Data, 'base64')
+            const { secure_url } = await new Promise((resolve, reject) => {
+                const stream = cloudinary.uploader.upload_stream({folder:'ImagenUsuario',resource_type:'auto'},(error, response)=>{
+                    if(error){
+                        reject(error)
+                    }else{
+                        resolve(response)
+                    }
+                })
+                stream.end(buffer)
+            })
+            nuevoUsuario.imagenIA = secure_url
+        }
         await nuevoUsuario.save();
         await sendMailToActiveAccountPaciente(email, token);
 
-        res.status(200).json({ msg: "Usuario registrado, revisa tu correo para activar la cuenta" });
+        res.status(201).json({ msg: "Usuario registrado, revisa tu correo para activar la cuenta" });
     } catch (error) {
         console.log(error);
         res.status(500).json({ msg: "Error en el registro" });
@@ -130,7 +154,6 @@ const recuperarPassword = async(req,res)=>{
     } else if (usuarioBDD.rol === "administrador") {
         await sendMailToRecoveryPasswordAdministrador(email, token);
     }
-//    await sendMailToRecoveryPassword(email,token)
     await usuarioBDD.save()
     res.status(200).json({msg:"Revisa tu correo electrónico para reestablecer tu cuenta"})
 }
