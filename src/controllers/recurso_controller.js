@@ -114,9 +114,9 @@ const eliminarRecurso = async (req, res) => {
     }
 
     if (recurso.tipo === "cuestionario") {
-      await Cuestionario.findByIdAndDelete(recurso.ref);
+      await Cuestionario.findByIdAndDelete(recurso.referencia);
     } else if (recurso.tipo === "contenido") {
-      await Contenido.findByIdAndDelete(recurso.ref);
+      await Contenido.findByIdAndDelete(recurso.referencia);
     }
 
     await Recurso.findByIdAndDelete(id);
