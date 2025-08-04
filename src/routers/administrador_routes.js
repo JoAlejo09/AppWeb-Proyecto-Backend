@@ -1,6 +1,6 @@
 
 import {Router} from 'express'
-import {registro, activarCuenta, perfilAdmin, actualizarPerfilAdmin, actualizarPasswordAdmin} from '../controllers/administrador_controller.js'
+import {registro, activarCuenta, perfilAdmin, actualizarPerfilAdmin, actualizarPasswordAdmin,obtenerPacientes,editarPaciente,darDeBajaPaciente} from '../controllers/administrador_controller.js'
 import {verificarTokenJWT} from '../middlewares/JWT.js'
 import {validarAdmin} from '../middlewares/VerificarAuth.js'
 
@@ -16,4 +16,5 @@ router.put('/actualizar-password/:id', verificarTokenJWT, validarAdmin, actualiz
 router.get('/pacientes', verificarTokenJWT, validarAdmin, obtenerPacientes);
 router.put('/pacientes/:id', verificarTokenJWT, validarAdmin, editarPaciente);
 router.put('/pacientes/baja/:id', verificarTokenJWT, validarAdmin, darDeBajaPaciente);
+
 export default router
