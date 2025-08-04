@@ -45,7 +45,7 @@ const crearRecurso = async (req, res) => {
 const obtenerRecursos = async (req, res) => {
   try {
     const recursos = await Recurso.find()
-      .populate("ref") // popula con cuestionario o contenido según tipo
+      .populate("referencia") // popula con cuestionario o contenido según tipo
       .lean();
 
     res.status(200).json(recursos);
