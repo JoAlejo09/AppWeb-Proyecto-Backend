@@ -6,28 +6,28 @@ import './config/passport.js';
 import http from 'http';
 import { Server } from 'socket.io';
 import jwt from 'jsonwebtoken';
-import Mensaje from './models/Mensaje.js';
+import Mensaje from './models/Mensaje.js'; // Asegúrate de que este modelo esté bien definido
 
 // Middleware
 app.use(cors({ origin: "*" })); // Cambia "*" por tu frontend en producción
 app.use(passport.initialize());
 
-// CONECTAR A DB
+// Conectar a DB
 connection();
 
-// CREA SERVIDOR HTTP A PARTIR DE EXPRESS
+// Crear servidor HTTP
 const server = http.createServer(app);
 
-// INICIA SOCKET.IO SOBRE HTTP SERVER
+// Iniciar Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: "https://app-web-proyecto-frontend.vercel.app", // ajusta a tu dominio real
+    origin: "https://app-web-proyecto-frontend.vercel.app", // o http://localhost:5173 para pruebas locales
     methods: ["GET", "POST"],
     credentials: true,
   }
 });
 
-// MIDDLEWARE SOCKET.IO JWT
+// Middleware de autenticación con JWT
 io.use((socket, next) => {
   const token = socket.handshake.auth.token;
   if (!token) {
@@ -35,24 +35,44 @@ io.use((socket, next) => {
   }
   try {
     const usuario = jwt.verify(token, process.env.JWT_SECRET);
-    socket.usuario = usuario; // ahora puedes acceder a socket.usuario
+    socket.usuario = usuario;
     next();
   } catch (error) {
     return next(new Error('Token inválido'));
   }
 });
 
-// CONEXIÓN SOCKET
+// Conexión de cliente
 io.on('connection', (socket) => {
   console.log('Usuario conectado:', socket.usuario?.nombre || socket.id);
-  io.emit('enviar-mensaje-front-back', payload);
+
+  // Escuchar mensajes del cliente
+  socket.on('enviar-mensaje-front-back', async (payload) => {
+    // Guardar el mensaje en la base de datos si deseas
+    try {
+      const nuevoMensaje = new Mensaje({
+        emisor: socket.usuario._id, // Asegúrate que el token contiene _id
+        nombre: socket.usuario.nombre,
+        mensaje: payload.body,
+      });
+      await nuevoMensaje.save();
+    } catch (error) {
+      console.error("Error guardando mensaje:", error.message);
+    }
+
+    // Enviar mensaje a todos los clientes
+    io.emit('enviar-mensaje-front-back', {
+      from: socket.usuario.nombre,
+      body: payload.body
+    });
+  });
 
   socket.on('disconnect', () => {
     console.log('Usuario desconectado:', socket.usuario?.nombre || socket.id);
   });
 });
 
-// LEVANTA EL SERVIDOR COMPLETO (HTTP + EXPRESS + SOCKET.IO)
+// Iniciar servidor
 const PORT = app.get('port') || 3000;
 server.listen(PORT, () => {
   console.log(`Servidor corriendo en http://localhost:${PORT}`);
