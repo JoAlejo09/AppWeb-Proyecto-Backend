@@ -80,39 +80,45 @@ const actualizarPerfilAdmin = async (req, res) => {
     return res.status(500).json({ msg: "Error del servidor" });
   }
 };
+
 const actualizarPasswordAdmin = async (req, res) => {
   const { id } = req.params;
   const { passwordAnterior, passwordNuevo } = req.body;
+
   try {
+    // Validar campos obligatorios
     if (!passwordAnterior || !passwordNuevo) {
       return res.status(400).json({ msg: "La contraseña anterior y la nueva son obligatorias" });
     }
+
     // Validar ID de MongoDB
     if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ msg: "ID inválido" });
     }
-    // Buscar al usuario por ID
-    const usuario = await Usuario.findById(id);
 
+    // Buscar usuario
+    const usuario = await Usuario.findById(id);
     if (!usuario) {
       return res.status(404).json({ msg: "Administrador no encontrado" });
     }
-    const passAnterior =  usuario.encrypPassword(passwordAnterior)
-    // Validar contraseña anterior
-    if (usuario.matchPassword(passAnterior)) {
-      // Cifrar la nueva contraseña
-      usuario.password = await usuario.encrypPassword(passwordNuevo);
-      await usuario.save();
-      return res.status(200).json({ msg: "Contraseña actualizada correctamente" });
-    }else {
+
+    // Verificar si la contraseña anterior coincide
+    const coincide = await usuario.matchPassword(passwordAnterior);
+    if (!coincide) {
       return res.status(400).json({ msg: "La contraseña anterior no coincide" });
     }
 
+    // Cifrar la nueva contraseña y guardar
+    usuario.password = await usuario.encrypPassword(passwordNuevo);
+    await usuario.save();
+
+    return res.status(200).json({ msg: "Contraseña actualizada correctamente" });
+
   } catch (error) {
-    console.error("Error al validar ID:", error);
+    console.error("❌ Error al actualizar la contraseña:", error);
     return res.status(500).json({ msg: "Error del servidor" });
   }
-}
+};
 export{
     registro,
     activarCuenta,
