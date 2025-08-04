@@ -32,10 +32,31 @@ const activarCuenta = async (req, res) =>{
 }
 
 //DESARROLLO DE LA INFORMACION PARA PERFIL DE ADMINISTRADOR Y ENVIO DE TODOS LOS PARAMETROS
-const perfilAdmin = (req, res)=>{
-    const {token, confirmEmail,createdAt, updateAt, __v, ...datosPerfil} = req.usuario;
-    return res.status(200).json(datosPerfil)
-}
+const perfilAdmin = (req, res) => {
+  try {
+    const usuario = req.usuario;
+
+    const datosPerfil = {
+      id: usuario._id,
+      nombre: usuario.nombre,
+      apellido: usuario.apellido,
+      email: usuario.email,
+      telefono: usuario.telefono,
+      rol: usuario.rol,
+      estado: usuario.estado,
+      confirmEmail: usuario.confirmEmail,
+      fechaCreacion: usuario.fechaCreacion,
+      fechaActualizacion: usuario.fechaActualizacion,
+      token: usuario.token ? usuario.token : null,
+    };
+
+    return res.status(200).json(datosPerfil);
+  } catch (error) {
+    console.error("Error al obtener perfil admin:", error);
+    return res.status(500).json({ msg: "Error del servidor" });
+  }
+};
+
 const actualizarPerfilAdmin = async (req, res) => {
   try {
     const { id } = req.params;
