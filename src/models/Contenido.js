@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 const contenidoSchema = new mongoose.Schema({
   url: {
-    Type:String,
+    type:String,
     required: true,
   },
   tipo: { 
@@ -14,3 +14,4 @@ const contenidoSchema = new mongoose.Schema({
   }
 });
 export default mongoose.model('Contenido', contenidoSchema);
+
