@@ -1,7 +1,6 @@
-// controllers/recursoController.js
-const Recurso = require("../models/Recurso");
-const Cuestionario = require("../models/Cuestionario");
-const Contenido = require("../models/Contenido");
+import Recurso from '../models/Recurso';
+import Cuestionario from '../models/Cuestionario';
+import Contenido from '../models/Contenido';    
 import mongoose from 'mongoose'
 
 
