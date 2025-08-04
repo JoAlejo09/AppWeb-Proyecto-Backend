@@ -21,7 +21,7 @@ const server = http.createServer(app);
 // INICIA SOCKET.IO SOBRE HTTP SERVER
 const io = new Server(server, {
   cors: {
-    origin: "*", // ajusta a tu dominio real
+    origin: "https://tu-app-frontend.vercel.app", // ajusta a tu dominio real
     methods: ["GET", "POST"],
   }
 });
@@ -44,10 +44,7 @@ io.use((socket, next) => {
 // CONEXIÓN SOCKET
 io.on('connection', (socket) => {
   console.log('Usuario conectado:', socket.usuario?.nombre || socket.id);
-
-  socket.on('enviar-mensaje-front-back', (payload) => {
-    io.emit('enviar-mensaje-front-back', payload);
-  });
+  io.emit('enviar-mensaje-front-back', payload);
 
   socket.on('disconnect', () => {
     console.log('Usuario desconectado:', socket.usuario?.nombre || socket.id);
