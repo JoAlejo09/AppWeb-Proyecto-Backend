@@ -1,6 +1,6 @@
-import Recurso from '../models/Recurso';
-import Cuestionario from '../models/Cuestionario';
-import Contenido from '../models/Contenido';    
+import Recurso from '../models/Recurso.js';
+import Cuestionario from '../models/Cuestionario.js';
+import Contenido from '../models/Contenido.js';    
 import mongoose from 'mongoose'
 
 
