@@ -19,9 +19,9 @@ router.put('/pacientes/:id', verificarTokenJWT, validarAdmin, editarPaciente);
 router.delete('/pacientes/baja/:id', verificarTokenJWT, validarAdmin, darDeBajaPaciente);
 
 router.post('/recurso/crear', verificarTokenJWT, validarAdmin, crearRecurso);
-post.get('/recurso/lista', verificarTokenJWT, validarAdmin, obtenerRecursos);
-post.get('/recurso/:id', verificarTokenJWT, validarAdmin, obtenerRecurso);
-post.put('/recurso/actualizar/:id', verificarTokenJWT, validarAdmin, actualizarRecurso);
-post.delete('/recurso/eliminar/:id', verificarTokenJWT, validarAdmin, eliminarRecurso);
+router.get('/recurso/lista', verificarTokenJWT, validarAdmin, obtenerRecursos);
+router.get('/recurso/:id', verificarTokenJWT, validarAdmin, obtenerRecurso);
+router.put('/recurso/actualizar/:id', verificarTokenJWT, validarAdmin, actualizarRecurso);
+router.delete('/recurso/eliminar/:id', verificarTokenJWT, validarAdmin, eliminarRecurso);
 
 export default router
