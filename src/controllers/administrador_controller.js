@@ -97,7 +97,7 @@ const actualizarPasswordAdmin = async (req, res) => {
     if (!usuario) {
       return res.status(404).json({ msg: "Administrador no encontrado" });
     }
-    const passAnterior =  Usuario.encrypPassword(passwordAnterior)
+    const passAnterior =  usuario.encrypPassword(passwordAnterior)
     // Validar contraseña anterior
     if (usuario.matchPassword(passAnterior)) {
       // Cifrar la nueva contraseña
