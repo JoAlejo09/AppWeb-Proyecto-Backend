@@ -8,24 +8,28 @@ const crearRecurso = async (req, res) => {
   try {
     const { tipo, titulo, descripcion, datos } = req.body;
 
-    let ref;
+    let ref, tipoRef;
+
     if (tipo === "cuestionario") {
       const nuevoCuestionario = new Cuestionario(datos);
       await nuevoCuestionario.save();
       ref = nuevoCuestionario._id;
+      tipoRef = "Cuestionario"; // nombre exacto del modelo
     } else if (tipo === "contenido") {
       const nuevoContenido = new Contenido(datos);
       await nuevoContenido.save();
       ref = nuevoContenido._id;
+      tipoRef = "Contenido"; // nombre exacto del modelo
     } else {
       return res.status(400).json({ msg: "Tipo de recurso inválido" });
     }
 
     const nuevoRecurso = new Recurso({
       titulo,
-      tipo,
       descripcion,
-      ref
+      tipo,
+      ref,
+      tipoRef
     });
 
     await nuevoRecurso.save();
