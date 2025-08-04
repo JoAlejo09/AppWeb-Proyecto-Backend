@@ -1,6 +1,6 @@
 import Usuario from "../models/Usuario.js"
 import jwt from 'jsonwebtoken'
-
+import mongoose from 'mongoose'
 
 //REGISTRO PERMITE AGREGAR USUARIOS PARA ADMINISTRADOR !SOLO ES PARA LA BASE DE DATOS !! NO PARA FRONTEND
 const registro = async (req,res)=>{
