@@ -15,6 +15,6 @@ router.put('/actualizar-password/:id', verificarTokenJWT, validarAdmin, actualiz
 
 router.get('/pacientes', verificarTokenJWT, validarAdmin, obtenerPacientes);
 router.put('/pacientes/:id', verificarTokenJWT, validarAdmin, editarPaciente);
-router.put('/pacientes/baja/:id', verificarTokenJWT, validarAdmin, darDeBajaPaciente);
+router.delete('/pacientes/baja/:id', verificarTokenJWT, validarAdmin, darDeBajaPaciente);
 
 export default router
