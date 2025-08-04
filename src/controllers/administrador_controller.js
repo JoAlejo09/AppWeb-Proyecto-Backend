@@ -119,10 +119,67 @@ const actualizarPasswordAdmin = async (req, res) => {
     return res.status(500).json({ msg: "Error del servidor" });
   }
 };
+
+const obtenerPacientes = async (req, res) => {
+  try {
+    const pacientes = await Usuario.find({ rol: "paciente" }).select("-password");
+    return res.status(200).json(pacientes);
+  } catch (error) {
+    console.error("Error al obtener pacientes:", error);
+    return res.status(500).json({ msg: "Error del servidor" });
+  }
+};
+
+const editarPaciente = async (req, res) => {
+  const { id } = req.params;
+  const { nombre, apellido, telefono } = req.body;
+
+  try {
+    const paciente = await Usuario.findById(id);
+    if (!paciente || paciente.rol !== "paciente") {
+      return res.status(404).json({ msg: "Paciente no encontrado" });
+    }
+
+    paciente.nombre = nombre || paciente.nombre;
+    paciente.apellido = apellido || paciente.apellido;
+    paciente.telefono = telefono || paciente.telefono;
+
+    await paciente.save();
+    return res.status(200).json({ msg: "Paciente actualizado correctamente", paciente });
+  } catch (error) {
+    console.error("Error al editar paciente:", error);
+    return res.status(500).json({ msg: "Error del servidor" });
+  }
+};
+const darDeBajaPaciente = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const paciente = await Usuario.findById(id);
+    if (!paciente || paciente.rol !== "paciente") {
+      return res.status(404).json({ msg: "Paciente no encontrado" });
+    }
+
+    paciente.estado = false; // o paciente.activo = false;
+    await paciente.save();
+
+    return res.status(200).json({ msg: "Paciente dado de baja correctamente" });
+  } catch (error) {
+    console.error("Error al dar de baja paciente:", error);
+    return res.status(500).json({ msg: "Error del servidor" });
+  }
+};
+
+
+
 export{
     registro,
     activarCuenta,
     perfilAdmin,
     actualizarPerfilAdmin,
-    actualizarPasswordAdmin
+    actualizarPasswordAdmin,
+    obtenerPacientes,
+    editarPaciente,
+    darDeBajaPaciente,
+
 }

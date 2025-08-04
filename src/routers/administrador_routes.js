@@ -13,4 +13,7 @@ router.get('/perfil', verificarTokenJWT, validarAdmin, perfilAdmin)
 router.put('/perfil/:id',verificarTokenJWT, validarAdmin, actualizarPerfilAdmin)
 router.put('/actualizar-password/:id', verificarTokenJWT, validarAdmin, actualizarPasswordAdmin);
 
+router.get('/pacientes', verificarTokenJWT, validarAdmin, obtenerPacientes);
+router.put('/pacientes/:id', verificarTokenJWT, validarAdmin, editarPaciente);
+router.put('/pacientes/baja/:id', verificarTokenJWT, validarAdmin, darDeBajaPaciente);
 export default router
