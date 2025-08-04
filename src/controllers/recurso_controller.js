@@ -41,7 +41,6 @@ const crearRecurso = async (req, res) => {
   }
 };
 
-// Obtener todos los recursos
 const obtenerRecursos = async (req, res) => {
   try {
     const recursos = await Recurso.find()
@@ -64,7 +63,7 @@ const obtenerRecurso = async (req, res) => {
       return res.status(400).json({ msg: "ID inválido" });
     }
 
-    const recurso = await Recurso.findById(id).populate("ref");
+    const recurso = await Recurso.findById(id).populate("referencia");
     if (!recurso) {
       return res.status(404).json({ msg: "Recurso no encontrado" });
     }
