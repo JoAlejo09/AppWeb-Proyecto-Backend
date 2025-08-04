@@ -14,12 +14,12 @@ const crearRecurso = async (req, res) => {
       const nuevoCuestionario = new Cuestionario(datos);
       await nuevoCuestionario.save();
       ref = nuevoCuestionario._id;
-      tipoRef = "Cuestionario"; // nombre exacto del modelo
+      tipoRef = "cuestionario"; // nombre exacto del modelo
     } else if (tipo === "contenido") {
       const nuevoContenido = new Contenido(datos);
       await nuevoContenido.save();
       ref = nuevoContenido._id;
-      tipoRef = "Contenido"; // nombre exacto del modelo
+      tipoRef = "contenido"; // nombre exacto del modelo
     } else {
       return res.status(400).json({ msg: "Tipo de recurso inválido" });
     }
