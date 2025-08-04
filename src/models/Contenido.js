@@ -13,3 +13,4 @@ const contenidoSchema = new mongoose.Schema({
     trim: true
   }
 });
+export default mongoose.model('Contenido', contenidoSchema);
