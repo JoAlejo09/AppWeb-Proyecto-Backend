@@ -17,6 +17,7 @@ const authSocialCallback = async (req, res)=>{
         console.error('Error en authSocialCallback:', error);
     res.status(500).json({ msg: 'Error al autenticar con red social' });
     }
+}
 export{
     authSocialCallback
 }

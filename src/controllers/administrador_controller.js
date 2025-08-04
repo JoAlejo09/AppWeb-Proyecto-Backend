@@ -47,19 +47,15 @@ const actualizarPerfilAdmin = async (req, res) => {
     }
 
     // Validar campos obligatorios
-    if (!nombre || !apellido) {
-      return res.status(400).json({ msg: "Nombre y apellido son obligatorios" });
-    }
 
-    // Buscar usuario
     const usuario = await Usuario.findById(id);
     if (!usuario) {
       return res.status(404).json({ msg: "Administrador no encontrado" });
     }
 
     // Proteger campos que no deben cambiarse
-    usuario.nombre = nombre;
-    usuario.apellido = apellido;
+    usuario.nombre = nombre || usuario.nombre;
+    usuario.apellido = apellido || usuario.apellido
     usuario.telefono = telefono || usuario.telefono;
 
     await usuario.save();
