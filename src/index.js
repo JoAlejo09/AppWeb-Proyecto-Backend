@@ -46,7 +46,7 @@ io.on('connection', (socket) => {
   console.log('Usuario conectado:', socket.usuario?.nombre || socket.id);
 
   socket.on('enviar-mensaje-front-back', (payload) => {
-    socket.broadcast.emit('enviar-mensaje-front-back', payload);
+    io.emit('enviar-mensaje-front-back', payload);
   });
 
   socket.on('disconnect', () => {
