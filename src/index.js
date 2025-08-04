@@ -5,6 +5,7 @@ import passport from 'passport'
 import './config/passport.js'
 import http from 'http';
 import { Server } from 'socket.io';
+import Mensaje from './models/Mensaje.js';
 
 
 app.use(cors({ origin: "*" })); // en producción debes especificar el dominio
@@ -25,7 +26,12 @@ const io = new Server(server, {
 })
 io.on('connection', (socket) => {
     console.log('Usuario conectado',socket.id)
-    socket.on('enviar-mensaje-front-back',(payload)=>{
+    socket.on('enviar-mensaje-front-back', async(payload)=>{
+        await Mensaje.create({
+            texto: payload.texto,
+            remitente: payload.remitente,
+            destinatario: payload.destinatarioId
+        });
         socket.broadcast.emit('enviar-mensaje-front-back',payload)
     })
 })
