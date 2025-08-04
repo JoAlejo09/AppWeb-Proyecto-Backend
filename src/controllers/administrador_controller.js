@@ -41,32 +41,46 @@ const actualizarPerfilAdmin = async (req, res) => {
     const { id } = req.params;
     const { nombre, apellido, telefono } = req.body;
 
-    // Validar ID
+    // Validar ID de MongoDB
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(404).json({ msg: `Lo sentimos, ID inválido` });
+      return res.status(400).json({ msg: "ID inválido" });
     }
 
-    // Validar campos obligatorios
-
+    // Buscar al usuario por ID
     const usuario = await Usuario.findById(id);
     if (!usuario) {
       return res.status(404).json({ msg: "Administrador no encontrado" });
     }
 
+    // Validación de campos requeridos (opcional)
+    if (!nombre || !apellido) {
+      return res.status(400).json({ msg: "Nombre y apellido son obligatorios" });
+    }
+
     // Proteger campos que no deben cambiarse
-    usuario.nombre = nombre ;
-    usuario.apellido = apellido ;
+    usuario.nombre = nombre;
+    usuario.apellido = apellido;
     usuario.telefono = telefono || usuario.telefono;
 
     await usuario.save();
 
-    return res.status(200).json({ msg: "Perfil actualizado correctamente" });
+    return res.status(200).json({
+      msg: "Perfil actualizado correctamente",
+      usuario: {
+        nombre: usuario.nombre,
+        apellido: usuario.apellido,
+        telefono: usuario.telefono,
+        email: usuario.email,
+        rol: usuario.rol
+      }
+    });
 
   } catch (error) {
-    console.error(error);
+    console.error("Error al actualizar perfil:", error);
     return res.status(500).json({ msg: "Error del servidor" });
   }
-}
+};
+
 export{
     registro,
     activarCuenta,
