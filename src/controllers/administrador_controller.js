@@ -54,8 +54,8 @@ const actualizarPerfilAdmin = async (req, res) => {
     }
 
     // Proteger campos que no deben cambiarse
-    usuario.nombre = nombre || usuario.nombre;
-    usuario.apellido = apellido || usuario.apellido
+    usuario.nombre = nombre ;
+    usuario.apellido = apellido ;
     usuario.telefono = telefono || usuario.telefono;
 
     await usuario.save();
