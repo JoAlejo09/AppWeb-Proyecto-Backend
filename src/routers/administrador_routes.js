@@ -3,6 +3,7 @@ import {Router} from 'express'
 import {registro, activarCuenta, perfilAdmin, actualizarPerfilAdmin, actualizarPasswordAdmin,obtenerPacientes,editarPaciente,darDeBajaPaciente} from '../controllers/administrador_controller.js'
 import {verificarTokenJWT} from '../middlewares/JWT.js'
 import {validarAdmin} from '../middlewares/VerificarAuth.js'
+import { crearRecurso } from '../controllers/recurso_controller.js'
 
 const router = Router()
 
@@ -16,5 +17,7 @@ router.put('/actualizar-password/:id', verificarTokenJWT, validarAdmin, actualiz
 router.get('/pacientes', verificarTokenJWT, validarAdmin, obtenerPacientes);
 router.put('/pacientes/:id', verificarTokenJWT, validarAdmin, editarPaciente);
 router.delete('/pacientes/baja/:id', verificarTokenJWT, validarAdmin, darDeBajaPaciente);
+
+router.post('/recurso', verificarTokenJWT, validarAdmin, crearRecurso);
 
 export default router
