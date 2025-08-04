@@ -2,7 +2,7 @@ import Reporte from '../models/Reporte.js';
 import Recurso from '../models/Recurso.js';
 import Usuario from '../models/Usuario.js';
 
-export const crearReporte = async (req, res) => {
+const crearReporte = async (req, res) => {
   try {
     const { pacienteId, recursoId, resultado } = req.body;
 
@@ -23,7 +23,7 @@ export const crearReporte = async (req, res) => {
   }
 };
 
-export const obtenerReportes = async (req, res) => {
+const obtenerReportes = async (req, res) => {
   try {
     const reportes = await Reporte.find()
       .populate('paciente', 'nombre correo') // o campos que te interesen
@@ -35,7 +35,7 @@ export const obtenerReportes = async (req, res) => {
   }
 };
 
-export const obtenerReportePorId = async (req, res) => {
+const obtenerReportePorId = async (req, res) => {
   try {
     const reporte = await Reporte.findById(req.params.id)
       .populate('paciente', 'nombre correo')
@@ -48,7 +48,7 @@ export const obtenerReportePorId = async (req, res) => {
   }
 };
 
-export const obtenerReportesPorPaciente = async (req, res) => {
+const obtenerReportesPorPaciente = async (req, res) => {
   try {
     const { pacienteId } = req.params;
     const reportes = await Reporte.find({ paciente: pacienteId })
@@ -60,7 +60,7 @@ export const obtenerReportesPorPaciente = async (req, res) => {
   }
 };
 
-export const eliminarReporte = async (req, res) => {
+const eliminarReporte = async (req, res) => {
   try {
     const { id } = req.params;
     const eliminado = await Reporte.findByIdAndDelete(id);
@@ -70,3 +70,10 @@ export const eliminarReporte = async (req, res) => {
     res.status(500).json({ msg: 'Error al eliminar reporte' });
   }
 };
+export{
+    crearReporte,
+    obtenerReportes,
+    obtenerReportePorId,
+    obtenerReportesPorPaciente,
+    eliminarReporte
+}
