@@ -21,8 +21,9 @@ const server = http.createServer(app);
 // INICIA SOCKET.IO SOBRE HTTP SERVER
 const io = new Server(server, {
   cors: {
-    origin: "https://tu-app-frontend.vercel.app", // ajusta a tu dominio real
+    origin: "https://app-web-proyecto-frontend.vercel.app", // ajusta a tu dominio real
     methods: ["GET", "POST"],
+    credentials: true,
   }
 });
 
