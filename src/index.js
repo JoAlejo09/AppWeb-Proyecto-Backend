@@ -1,63 +1,61 @@
-import app from './server.js'
+import app from './server.js';
 import connection from './database.js';
 import cors from "cors";
-import passport from 'passport'
-import './config/passport.js'
+import passport from 'passport';
+import './config/passport.js';
 import http from 'http';
 import { Server } from 'socket.io';
-import Mensaje from './models/Mensaje.js';
 import jwt from 'jsonwebtoken';
+import Mensaje from './models/Mensaje.js';
 
-
-app.use(cors({ origin: "*" })); // en producción debes especificar el dominio
-
+// Middleware
+app.use(cors({ origin: "*" })); // Cambia "*" por tu frontend en producción
 app.use(passport.initialize());
 
-app.listen(app.get('port'),()=>{
-    console.log(`Server ok on http://localhost:${app.get('port')}`);
-})
+// CONECTAR A DB
+connection();
 
-connection()
-
+// CREA SERVIDOR HTTP A PARTIR DE EXPRESS
 const server = http.createServer(app);
+
+// INICIA SOCKET.IO SOBRE HTTP SERVER
 const io = new Server(server, {
-    cors:{
-        origin: "*",
-        methods: ["GET", "POST"],
-    }
-})
-io.on('connection', (socket) => {
-    console.log('Usuario conectado',socket.id)
-    socket.on('enviar-mensaje-front-back',(payload)=>{
-        socket.broadcast.emit('enviar-mensaje-front-back',payload)
-    })
-})
-io.listen((socket,next) => {
-    const token = socket.handshake.auth.token;
-    if (!token) {
-        return next(new Error('No autorizado'));
-    }
-    try {
-        const usuario = jwt.verify(token, process.env.JWT_SECRET);
-        socket.usuario = usuario;
-        next(); 
-    } catch (error) {
-        return next(new Error('Token inválido'));
-    }
-})
+  cors: {
+    origin: "*", // ajusta a tu dominio real
+    methods: ["GET", "POST"],
+  }
+});
+
+// MIDDLEWARE SOCKET.IO JWT
 io.use((socket, next) => {
-    const token = socket.handshake.auth.token;
-    if (!token) {
-        return next(new Error('No autorizado'));
-    }
-    try {
-        const usuario = jwt.verify(token, process.env.JWT_SECRET);
-        socket.usuario = usuario;
-        next();  
-    }   catch (error) {
-        return next(new Error('Token inválido'));
-    } 
-});  
-server.listen(app.get('port'), () => {
-    console.log(`Socket.io server running on http://localhost:${app.get('port') + 1}`);
+  const token = socket.handshake.auth.token;
+  if (!token) {
+    return next(new Error('No autorizado'));
+  }
+  try {
+    const usuario = jwt.verify(token, process.env.JWT_SECRET);
+    socket.usuario = usuario; // ahora puedes acceder a socket.usuario
+    next();
+  } catch (error) {
+    return next(new Error('Token inválido'));
+  }
+});
+
+// CONEXIÓN SOCKET
+io.on('connection', (socket) => {
+  console.log('Usuario conectado:', socket.usuario?.nombre || socket.id);
+
+  socket.on('enviar-mensaje-front-back', (payload) => {
+    socket.broadcast.emit('enviar-mensaje-front-back', payload);
+  });
+
+  socket.on('disconnect', () => {
+    console.log('Usuario desconectado:', socket.usuario?.nombre || socket.id);
+  });
+});
+
+// LEVANTA EL SERVIDOR COMPLETO (HTTP + EXPRESS + SOCKET.IO)
+const PORT = app.get('port') || 3000;
+server.listen(PORT, () => {
+  console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
