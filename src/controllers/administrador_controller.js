@@ -31,7 +31,6 @@ const activarCuenta = async (req, res) =>{
     res.status(200).json({msg:"Token confirmado, ya puedes iniciar sesión"}) 
 }
 
-//DESARROLLO DE LA INFORMACION PARA PERFIL DE ADMINISTRADOR Y ENVIO DE TODOS LOS PARAMETROS
 const perfilAdmin = (req, res) => {
   try {
     const usuario = req.usuario;
