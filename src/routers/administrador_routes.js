@@ -4,6 +4,7 @@ import {registro, activarCuenta, perfilAdmin, actualizarPerfilAdmin, actualizarP
 import {verificarTokenJWT} from '../middlewares/JWT.js'
 import {validarAdmin} from '../middlewares/VerificarAuth.js'
 import { crearRecurso, obtenerRecursos, obtenerRecurso,actualizarRecurso, eliminarRecurso} from '../controllers/recurso_controller.js'
+import {crearReporte, obtenerReportes, obtenerReportePorId, obtenerReportesPorPaciente, eliminarReporte} from '../controllers/reporte_controller.js';
 
 const router = Router()
 
@@ -23,5 +24,11 @@ router.get('/recurso/lista', verificarTokenJWT, validarAdmin, obtenerRecursos);
 router.get('/recurso/:id', verificarTokenJWT, validarAdmin, obtenerRecurso);
 router.put('/recurso/actualizar/:id', verificarTokenJWT, validarAdmin, actualizarRecurso);
 router.delete('/recurso/eliminar/:id', verificarTokenJWT, validarAdmin, eliminarRecurso);
+
+router.post('/reporte', crearReporte);
+router.get('/reporte/obtener', obtenerReportes);
+router.get('/reporte/obtener/:id', obtenerReportePorId);
+router.get('/reporte/paciente/:pacienteId', obtenerReportesPorPaciente);
+router.delete('/reporte/eliminar/:id', eliminarReporte);
 
 export default router
