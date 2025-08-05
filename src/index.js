@@ -24,7 +24,7 @@ io.on('connection', (socket) => {
         socket.broadcast.emit('enviar-mensaje-front-back', payload)
     })
 })
-app.listen(app.get('port'),()=>{
+server.listen(app.get('port'),()=>{
     console.log(`Server ok on http://localhost:${app.get('port')}`);
 })
 
