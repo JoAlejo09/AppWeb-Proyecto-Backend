@@ -3,24 +3,35 @@ import Cita from "../models/Cita.js";
 import Stripe from 'stripe';
 const stripe = new Stripe(process.env.STRIPE_PRIVATE_KEY);
 
-const agendarCita = async (req, res) => {
-  const { paciente, profesional, fecha, motivo, emailPaciente, nombrePaciente, monto } = req.body;
 
+export const pagarCita = async (req, res) => {
   try {
-    const nuevaCita = new Cita({
-      paciente,
-      profesional,
-      fecha,
-      motivo,
-      emailPaciente,
-      nombrePaciente,
-      monto
+    const { nombre, monto, descripcion } = req.body;
+
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      line_items: [
+        {
+          price_data: {
+            currency: 'usd',
+            product_data: {
+              name: nombre,
+              description: descripcion,
+            },
+            unit_amount: monto * 100, // dólares a centavos
+          },
+          quantity: 1,
+        },
+      ],
+      mode: 'payment',
+      success_url: `${process.env.FRONTEND_URL}/pago-exitoso`,
+      cancel_url: `${process.env.FRONTEND_URL}/pago-cancelado`,
     });
 
-    const citaGuardada = await nuevaCita.save();
-    res.status(201).json(citaGuardada);
+    res.json({ url: session.url });
   } catch (error) {
-    res.status(500).json({ msg: "Error al agendar cita", error });
+    console.error(error.message);
+    res.status(500).json({ msg: 'Error al crear sesión de pago' });
   }
 };
 
