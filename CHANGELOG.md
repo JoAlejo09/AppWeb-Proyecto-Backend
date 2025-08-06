@@ -1,6 +1,22 @@
 # CHANGELOG - Documentación Actualizaciones
 
 Todos los cambios desarrollados en el Componente Backend serán documentados en este documento
+
+## [0.2.1] - 2025-08-05
+### Actualización
+- Funcionalidad Citas
+  - Ajuste de rutas API
+  - Modificación de almacenamiento de información de Stripe
+## [0.2.0] - 2025-08-05
+### Agregado
+- Implementación de API Stripe para pagos en línea.
+- Funcionalidad Citas
+    - Diseño de modelo Citas
+    - Diseño controlador para Citas
+    - Creación de rutas añadidas a Paciente
+    - Seguridad JWT
+### Eliminación
+- Componente AuthSocial que no estaba implementado en Passport
 ## [0.1.0] - 2025-08-05
 ### Agregado
 - Lanzamiento del Componente Backend
