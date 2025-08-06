@@ -5,12 +5,12 @@ const authSocialCallback = async (req, res)=>{
         if(!req.usuario) return res.status(400).json({msg:"No se encontro el usuario"});
         const token = crearTokenJWT(req.usuario._id, req.usuario.rol);
         res.json({
-            token,
             usuario:{
                 id: req.usuario._id,
                 nombre: req.usuario.nombre,
                 correo: req.usuario,correo,
-                rol: req.usuario.rol
+                rol: req.usuario.rol,
+                token: token
             }
         });
     } catch (error) {
