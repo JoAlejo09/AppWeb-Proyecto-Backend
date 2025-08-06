@@ -6,12 +6,24 @@ const router = Router()
 
 router.get('/google', passport.authenticate('google', {scope:['profile', 'email'] }))
 
-router.get ('/google/callback', passport.authenticate('google',{
+/*router.get ('/google/callback', passport.authenticate('google',{
     session: false,
     failureRedirect: '/usuarios/login'
 }), (req, res) =>{
     const token = crearTokenJWT(req.user._id, req.user.rol)
     res.redirect(`${process.env.URL_FRONTEND}oauth-success?token=${token}`)
+})
+*/
+router.get('/google/callback', passport.authenticate('google', {
+    session: false,
+    failureRedirect: '/usuarios/login'
+}), (req, res) => {
+    const token = crearTokenJWT(req.user._id, req.user.rol)
+    const usuario = {
+      nombre: req.user.nombre,
+      rol: req.user.rol
+    }
+    res.json({ token, usuario })
 })
 router.get('/facebook', passport.authenticate('facebook', { scope: ['email'] }))
 
