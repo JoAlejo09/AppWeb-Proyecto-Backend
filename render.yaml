@@ -13,5 +13,3 @@ services:
         value: mongodb+srv://josep:po553rB6nHWCBMqI@clusterproyectp.wi8jsvt.mongodb.net/mentalDB
       - key: JWT_SECRET
         value: asnddjqwbdhasbd1823y18jsasdnasjdn123
-      - key: URL_FRONTEND
-        value: http://localhost:5173/

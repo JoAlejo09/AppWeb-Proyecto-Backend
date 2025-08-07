@@ -2,7 +2,7 @@ import Recurso from '../models/Recurso.js';
 import Cuestionario from '../models/Cuestionario.js';
 import Contenido from '../models/Contenido.js';    
 import mongoose from 'mongoose'
-
+import Reporte from '../models/Reporte.js';
 
 const crearRecurso = async (req, res) => {
   try {
@@ -127,11 +127,57 @@ const eliminarRecurso = async (req, res) => {
     res.status(500).json({ msg: "Error al eliminar recurso" });
   }
 };
+const utilizarRecurso = async (req, res) => {
+  try {
+    const recursoId = req.params.id;
+    const { resultado } = req.body;
+    const pacienteId = req.usuario.id;
+
+    const recurso = await Recurso.findById(recursoId);
+    if (!recurso || !recurso.activo) {
+      return res.status(404).json({ msg: 'Recurso no encontrado o inactivo' });
+    }
+
+    // Validaciones según tipo de recurso
+    if (recurso.tipo === 'contenido') {
+      if (!resultado || !resultado.visto) {
+        return res.status(400).json({ msg: 'Se espera un resultado con { visto: true } para contenido' });
+      }
+    }
+
+    if (recurso.tipo === 'cuestionario') {
+      if (!resultado || !Array.isArray(resultado.respuestas)) {
+        return res.status(400).json({ msg: 'Se esperan respuestas en un array para cuestionario' });
+      }
+    }
+
+    // Crear el reporte
+    const nuevoReporte = new Reporte({
+      paciente: pacienteId,
+      recurso: recurso._id,
+      tipo: recurso.tipo,
+      resultado,
+    });
+
+    await nuevoReporte.save();
+
+    res.status(201).json({
+      msg: 'Uso del recurso registrado correctamente',
+      reporte: nuevoReporte,
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ msg: 'Error al utilizar el recurso' });
+  }
+};
+
 
 export{
   crearRecurso,
   obtenerRecursos,
   obtenerRecurso,
   actualizarRecurso,
-  eliminarRecurso
+  eliminarRecurso,
+  utilizarRecurso
 };

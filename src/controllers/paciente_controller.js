@@ -62,6 +62,7 @@ const actualizarPerfilPaciente = async (req, res) => {
   }
 };
 
+
 export{
     confirmarCuentaPaciente,
     perfilPaciente,
