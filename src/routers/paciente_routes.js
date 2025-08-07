@@ -28,6 +28,6 @@ router.post('/respuesta-cuestionario', verificarTokenJWT, crearRespuestaCuestion
 router.get('/respuesta-cuestionario/paciente/:pacienteId', verificarTokenJWT, obtenerRespuestasPorPaciente);
 router.get('/respuesta-cuestionario/:id', verificarTokenJWT, obtenerRespuestaPorId);
 
-const router = express.Router();
+export default router
 
 
