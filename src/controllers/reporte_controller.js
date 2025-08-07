@@ -76,7 +76,7 @@ const obtenerMisReportes = async (req, res) => {
     const pacienteId = req.usuario.id;
 
     const reportes = await Reporte.find({ paciente: pacienteId })
-      .populate('recurso') // opcional
+     // .populate('recurso') // opcional
       .sort({ fecha: -1 }); // más recientes primero
 
     res.json(reportes);

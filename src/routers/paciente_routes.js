@@ -3,7 +3,7 @@ import {actualizarPerfilPaciente, confirmarCuentaPaciente, perfilPaciente} from 
 import { verificarTokenJWT } from '../middlewares/JWT.js';
 import {agendarCita, eliminarCita, pagarCita} from '../controllers/cita_controller.js';
 import { utilizarRecurso } from '../controllers/recurso_controller.js';
-import { obtenerMisReportes } from '../controllers/reporte_controller.js';
+import {  crearReporte, obtenerMisReportes } from '../controllers/reporte_controller.js';
 import { crearRespuestaCuestionario,
     obtenerRespuestasPorPaciente,
     obtenerRespuestaPorId} from '../controllers/respuesta_controller.js';
@@ -15,11 +15,10 @@ router.get('/confirmar/:token',confirmarCuentaPaciente)
 //Endpoint para obtener el perfil del paciente Y actualizarlo
 router.get('/perfil', verificarTokenJWT,perfilPaciente);
 router.put('/perfil/:id', verificarTokenJWT, actualizarPerfilPaciente);
-//Enpoint para manejar recursos
-router.post('/recurso/utilizar/:id', verificarTokenJWT, utilizarRecurso);
 
 //Endpoint para obtener reportes del paciente
 router.get('/reporte/mis-reportes', verificarTokenJWT, obtenerMisReportes);
+router.post('/reporte/crear', verificarTokenJWT,crearReporte);
 
 //Endpoint para manejar citas
 router.post('/agendar',verificarTokenJWT, agendarCita);
