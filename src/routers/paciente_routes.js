@@ -15,7 +15,7 @@ router.put('/perfil/:id', verificarTokenJWT, actualizarPerfilPaciente);
 //Enpoint para manejar recursos
 router.post('/recurso/utilizar/:id', verificarTokenJWT, utilizarRecurso);
 //Endpoint para obtener reportes del paciente
-router.get('/reporte/mis-reportes', verificarToken, obtenerMisReportes);
+router.get('/reporte/mis-reportes', verificarTokenJWT, obtenerMisReportes);
 
 //Endpoint para manejar citas
 router.post('/agendar',verificarTokenJWT, agendarCita);
