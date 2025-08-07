@@ -1,4 +1,4 @@
-import RespuestaCuestionario from '../models/RespuestaCuestionario.js';
+import Respuesta from '../models/Respuesta.js';
 import Cuestionario from '../models/Cuestionario.js';
 import Recurso from '../models/Recurso.js';
 import Reporte from '../models/Reporte.js';
