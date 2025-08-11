@@ -24,7 +24,6 @@ router.get('/recurso/:id', verificarTokenJWT, validarAdmin, obtenerRecurso);
 router.put('/recurso/actualizar/:id', verificarTokenJWT, validarAdmin, actualizarRecurso);
 router.delete('/recurso/eliminar/:id', verificarTokenJWT, validarAdmin, eliminarRecurso);
 //Endpoints para manejar reportes
-router.post('/reporte/crear', verificarTokenJWT,crearReporte);
 router.get('/reporte/obtener', verificarTokenJWT,obtenerReportes);
 router.get('/reporte/obtener/:id',verificarTokenJWT, obtenerReportePorId);
 router.get('/reporte/paciente/:pacienteId',verificarTokenJWT, obtenerReportesPorPaciente);
