@@ -23,10 +23,10 @@ const login = async (req,res)=>{
     if (!validPassword) return res.status(401).json({ msg: "Contraseña incorrecta" });
 
     //Valida que el rol sea el correcto para el usuario
-    if(rol !== usuarioBDD.rol) return res.status(401).json({msg:"El usuario no tiene permiso para ese perfil...."})
+    if(rol.toLowerCase() !== usuarioBDD.rol) return res.status(401).json({msg:"El usuario no tiene permiso para ese perfil...."})
     
     //Validacion por cada rol
-    if(usuarioBDD.rol === 'admin'){
+    if(usuarioBDD.rol.toLowerCase() === 'admin'){
         //Validacion si la cuenta no ha sido activada
         if(!usuarioBDD.confirmEmail){
             const token = usuarioBDD.crearToken();
