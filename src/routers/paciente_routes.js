@@ -27,10 +27,6 @@ router.post('/agendar',verificarTokenJWT, agendarCita);
 router.delete('/:id', verificarTokenJWT, eliminarCita);
 router.post('/pagar', verificarTokenJWT, pagarCita);
 
-router.post('/respuesta-cuestionario', verificarTokenJWT, crearRespuestaCuestionario);
-router.get('/respuesta-cuestionario/paciente/:pacienteId', verificarTokenJWT, obtenerRespuestasPorPaciente);
-router.get('/respuesta-cuestionario/:id', verificarTokenJWT, obtenerRespuestaPorId);
-
 export default router
 
 
