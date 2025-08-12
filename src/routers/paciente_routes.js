@@ -4,9 +4,7 @@ import { verificarTokenJWT } from '../middlewares/JWT.js';
 import {agendarCita, eliminarCita, pagarCita} from '../controllers/cita_controller.js';
 import { utilizarRecurso } from '../controllers/recurso_controller.js';
 import {  crearReporte, obtenerMisReportes, obtenerReportesPorPaciente } from '../controllers/reporte_controller.js';
-import { crearRespuestaCuestionario,
-    obtenerRespuestasPorPaciente,
-    obtenerRespuestaPorId} from '../controllers/respuesta_controller.js';
+
 
 const router = express.Router();
 //Endpoint validar cuenta de paciente
