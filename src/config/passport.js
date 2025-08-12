@@ -32,7 +32,7 @@ async (accessToken, refreshToken, profile, done) => {
 }));
 
 // --- Facebook Strategy ---
-passport.use(new FacebookStrategy({
+/*passport.use(new FacebookStrategy({
   clientID: process.env.FACEBOOK_CLIENT_ID,
   clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
   callbackURL: `${process.env.URL_BACKEND}/auth/facebook/callback`,
@@ -59,7 +59,7 @@ async (accessToken, refreshToken, profile, done) => {
     console.error('Error en FacebookStrategy:', error);
     return done(error, false);
   }
-}));
+}));*/
 
 // --- Serialize/Deserialize ---
 passport.serializeUser((user, done) => {
