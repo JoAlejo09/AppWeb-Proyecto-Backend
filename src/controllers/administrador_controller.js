@@ -36,7 +36,7 @@ const perfilAdmin = (req, res) => {
     const usuario = req.usuario;
 
     const datosPerfil = {
-      id: usuario._id,
+      _id: usuario._id,
       nombre: usuario.nombre,
       apellido: usuario.apellido,
       email: usuario.email,
