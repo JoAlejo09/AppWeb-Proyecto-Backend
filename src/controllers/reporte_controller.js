@@ -107,24 +107,10 @@ const eliminarReporte = async (req, res) => {
   }
 };
 
-const obtenerMisReportes = async (req, res) => {
-  try {
-    const pacienteId = req.usuario.id;
-    const reportes = await Reporte.find({ paciente: pacienteId })
-      .populate('recurso', 'titulo tipo') // si quieres
-      .sort({ fecha: -1 });
-    res.json(reportes);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ msg: 'Error al obtener tus reportes' });
-  }
-};
-
 export {
   crearReporte,
   obtenerReportes,
   obtenerReportePorId,
   obtenerReportesPorPaciente,
-  eliminarReporte,
-  obtenerMisReportes
+  eliminarReporte
 };

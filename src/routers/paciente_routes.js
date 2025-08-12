@@ -19,7 +19,7 @@ router.get('/recurso/lista', verificarTokenJWT, obtenerRecursos);
 router.get('/recurso/:id', verificarTokenJWT, obtenerRecurso);
 router.post('/recurso/utilizar', verificarTokenJWT,utilizarRecurso);
 //Endpoint para obtener reportes del paciente
-router.get('/reporte/mis-reportes/:id', verificarTokenJWT, obtenerReportesPorPaciente);
+router.get('/reporte/mis-reportes/:pacienteId', verificarTokenJWT, obtenerReportesPorPaciente);
 
 
 //Endpoint para manejar citas
