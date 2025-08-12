@@ -3,7 +3,7 @@ import {actualizarPasswordPaciente,actualizarPerfilPaciente, confirmarCuentaPaci
 import { verificarTokenJWT } from '../middlewares/JWT.js';
 import {agendarCita, eliminarCita, pagarCita} from '../controllers/cita_controller.js';
 import { obtenerRecursos , obtenerRecurso, utilizarRecurso } from '../controllers/recurso_controller.js';
-import {  crearReporte, obtenerMisReportes, obtenerReportesPorPaciente } from '../controllers/reporte_controller.js';
+import {  crearReporte, obtenerReportesPorPaciente } from '../controllers/reporte_controller.js';
 
 
 const router = express.Router();
