@@ -1,4 +1,3 @@
-// models/Cita.js
 import mongoose from 'mongoose';
 
 const citaSchema = new mongoose.Schema({
@@ -10,8 +9,7 @@ const citaSchema = new mongoose.Schema({
   profesional: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'Usuario',
-    // si todavía no asignas un profesional, puedes hacerlo opcional
-    required: false
+    required: true
   },
   fecha: {
     type: Date,
@@ -19,38 +17,32 @@ const citaSchema = new mongoose.Schema({
   },
   motivo: {
     type: String,
-    required: true,
-    trim: true
+    required: true
   },
-  // Estado de la cita (no de pago)
-  estadoCita: {
-    type: String,
-    enum: ['Programada', 'Cumplida', 'Cancelada'],
-    default: 'Programada'
-  },
-  // Pago
   estadoPago: {
     type: String,
     enum: ['Pendiente', 'Pagado'],
     default: 'Pendiente'
   },
   metodoPago: {
-    type: String, // 'Stripe' | 'Efectivo'
-    required: true,
+    type: String, // Stripe / Efectivo / etc.
     default: 'Stripe'
   },
-  monto: {
-    type: Number, // en centavos o dólares (define una convención: aquí usaremos USD enteros)
+  emailPaciente: {
+    type: String,
     required: true
   },
-  // Datos Stripe
-  paymentIntentId: { type: String },
-  chargeId: { type: String },
+  nombrePaciente: {
+    type: String,
+    required: true
+  },
+  monto: {
+    type: Number,
+    required: true
+  }
+}, {
+  timestamps: true
+});
 
-  // Info de paciente cacheada (para reportes rápidos)
-  emailPaciente: { type: String, required: true },
-  nombrePaciente: { type: String, required: true },
-
-}, { timestamps: true });
-
-export default mongoose.model('Cita', citaSchema);
+const Cita = mongoose.model('Cita', citaSchema);
+export default Cita;

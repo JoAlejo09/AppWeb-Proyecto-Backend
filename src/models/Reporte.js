@@ -17,7 +17,7 @@ const reporteSchema = new mongoose.Schema({
     required: true,
   },
   resultado: {
-    type: mongoose.Schema.Types.Mixed,
+    type: mongoose.Schema.Types.Mixed, // puede ser JSON con respuestas o simplemente { visto: true }
     required: true,
   },
   fecha: {

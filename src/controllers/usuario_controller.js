@@ -41,7 +41,7 @@ const login = async (req,res)=>{
             await usuarioBDD.save()
             const token = crearTokenJWT(usuarioBDD._id, usuarioBDD.rol)
             return res.status(200).json({
-              msg: "Administrador registrado. Bienvenido",
+              msg: "Usuario registrado. Bienvenido",
               token:token,
               usuario: {
                 nombre: usuarioBDD.nombre,

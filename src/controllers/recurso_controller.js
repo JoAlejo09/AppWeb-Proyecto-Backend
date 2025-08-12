@@ -3,35 +3,37 @@ import Cuestionario from '../models/Cuestionario.js';
 import Contenido from '../models/Contenido.js';    
 import mongoose from 'mongoose'
 import Reporte from '../models/Reporte.js';
-import RespuestaCuestionario from '../models/RespuestaCuestionario.js';
 
 const crearRecurso = async (req, res) => {
   try {
     const { tipo, titulo, descripcion, datos } = req.body;
 
-    let referencia, tipoRef;
+    let ref, tipoRef;
 
     if (tipo === "cuestionario") {
-      const doc = await Cuestionario.create(datos);
-      referencia = doc._id;
-      tipoRef = "Cuestionario"; // <-- nombre del modelo
+      const nuevoCuestionario = new Cuestionario(datos);
+      await nuevoCuestionario.save();
+      ref = nuevoCuestionario._id;
+      tipoRef = "cuestionario"; // nombre exacto del modelo
     } else if (tipo === "contenido") {
-      const doc = await Contenido.create(datos);
-      referencia = doc._id;
-      tipoRef = "Contenido"; // <-- nombre del modelo
+      const nuevoContenido = new Contenido(datos);
+      await nuevoContenido.save();
+      ref = nuevoContenido._id;
+      tipoRef = "contenido"; // nombre exacto del modelo
     } else {
       return res.status(400).json({ msg: "Tipo de recurso inválido" });
     }
 
-    const recurso = await Recurso.create({
+    const nuevoRecurso = new Recurso({
       titulo,
       descripcion,
-      tipo,        // 'cuestionario' | 'contenido'
-      referencia,  // ObjectId
-      tipoRef      // 'Cuestionario' | 'Contenido'
+      tipo,
+      ref,
+      tipoRef
     });
 
-    return res.status(201).json({ msg: "Recurso creado correctamente", recurso });
+    await nuevoRecurso.save();
+    res.status(201).json({ msg: "Recurso creado correctamente", recurso: nuevoRecurso });
 
   } catch (error) {
     console.error(error);
@@ -42,7 +44,7 @@ const crearRecurso = async (req, res) => {
 const obtenerRecursos = async (req, res) => {
   try {
     const recursos = await Recurso.find()
-      .populate("referencia") // ahora sí existe
+      .populate("referencia") // popula con cuestionario o contenido según tipo
       .lean();
 
     res.status(200).json(recursos);
@@ -52,6 +54,7 @@ const obtenerRecursos = async (req, res) => {
   }
 };
 
+// Obtener un recurso por ID
 const obtenerRecurso = async (req, res) => {
   try {
     const { id } = req.params;
@@ -68,10 +71,11 @@ const obtenerRecurso = async (req, res) => {
     res.status(200).json(recurso);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ msg: "Error al obtener el recurso" });
+    res.status(500).json({ msg: "Error al obtsener el recurso" });
   }
 };
 
+// Actualizar recurso
 const actualizarRecurso = async (req, res) => {
   try {
     const { id } = req.params;
@@ -86,9 +90,9 @@ const actualizarRecurso = async (req, res) => {
     recurso.descripcion = descripcion || recurso.descripcion;
 
     if (recurso.tipo === "cuestionario") {
-      await Cuestionario.findByIdAndUpdate(recurso.referencia, datos);
+      await Cuestionario.findByIdAndUpdate(recurso.ref, datos);
     } else if (recurso.tipo === "contenido") {
-      await Contenido.findByIdAndUpdate(recurso.referencia, datos);
+      await Contenido.findByIdAndUpdate(recurso.ref, datos);
     }
 
     await recurso.save();
@@ -99,6 +103,7 @@ const actualizarRecurso = async (req, res) => {
   }
 };
 
+// Eliminar recurso
 const eliminarRecurso = async (req, res) => {
   try {
     const { id } = req.params;
@@ -115,73 +120,55 @@ const eliminarRecurso = async (req, res) => {
     }
 
     await Recurso.findByIdAndDelete(id);
+
     res.status(200).json({ msg: "Recurso eliminado correctamente" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Error al eliminar recurso" });
   }
 };
-
-
 const utilizarRecurso = async (req, res) => {
   try {
-    const pacienteId = req.usuario._id; // viene del JWT
-    const { recursoId, tipo, respuestas } = req.body;
+    const recursoId = req.params.id;
+    const { resultado } = req.body;
+    const pacienteId = req.usuario.id;
 
     const recurso = await Recurso.findById(recursoId);
     if (!recurso || !recurso.activo) {
-      return res.status(404).json({ msg: "Recurso no disponible" });
+      return res.status(404).json({ msg: 'Recurso no encontrado o inactivo' });
     }
 
-    if (tipo === 'contenido') {
-      // 1) Solo registro de visto en Reporte
-      const reporte = await Reporte.create({
-        paciente: pacienteId,
-        recurso: recursoId,
-        tipo: 'contenido',
-        resultado: { visto: true }
-      });
-      return res.status(201).json({ msg: 'Contenido marcado como visto', reporte });
-    }
-
-    if (tipo === 'cuestionario') {
-      // 2) Validar cuestionario y guardar respuestas detalladas
-      if (recurso.tipo !== 'cuestionario') {
-        return res.status(400).json({ msg: 'El recurso no es cuestionario' });
+    // Validaciones según tipo de recurso
+    if (recurso.tipo === 'contenido') {
+      if (!resultado || !resultado.visto) {
+        return res.status(400).json({ msg: 'Se espera un resultado con { visto: true } para contenido' });
       }
-
-      const cuestionario = await Cuestionario.findById(recurso.referencia);
-      if (!cuestionario) {
-        return res.status(404).json({ msg: 'Cuestionario no encontrado' });
-      }
-
-      // Guardar respuestas en su colección
-      const docRespuesta = await RespuestaCuestionario.create({
-        paciente: pacienteId,
-        recurso: recursoId,
-        cuestionario: cuestionario._id,
-        respuestas: respuestas || []
-      });
-
-      // Y crear un Reporte resumen con link a la respuesta detallada
-      const reporte = await Reporte.create({
-        paciente: pacienteId,
-        recurso: recursoId,
-        tipo: 'cuestionario',
-        resultado: {
-          respuestaId: docRespuesta._id,
-          totalPreguntas: cuestionario.preguntas.length,
-          respondidas: (respuestas || []).length
-        }
-      });
-
-      return res.status(201).json({ msg: 'Cuestionario respondido', reporte, respuesta: docRespuesta });
     }
 
-    return res.status(400).json({ msg: 'Tipo inválido' });
+    if (recurso.tipo === 'cuestionario') {
+      if (!resultado || !Array.isArray(resultado.respuestas)) {
+        return res.status(400).json({ msg: 'Se esperan respuestas en un array para cuestionario' });
+      }
+    }
+
+    // Crear el reporte
+    const nuevoReporte = new Reporte({
+      paciente: pacienteId,
+      recurso: recurso._id,
+      tipo: recurso.tipo,
+      resultado,
+    });
+
+    await nuevoReporte.save();
+
+    res.status(201).json({
+      msg: 'Uso del recurso registrado correctamente',
+      reporte: nuevoReporte,
+    });
+
   } catch (error) {
     console.error(error);
-    res.status(500).json({ msg: "Error al utilizar el recurso" });
+    res.status(500).json({ msg: 'Error al utilizar el recurso' });
   }
 };
 
