@@ -177,7 +177,7 @@ const darDeBajaPaciente = async (req, res) => {
       return res.status(404).json({ msg: "Paciente no encontrado" });
     }
 
-    paciente.estado = false; // o paciente.activo = false;
+    paciente.activo = false; // o paciente.activo = false;
     await paciente.save();
 
     return res.status(200).json({ msg: "Paciente dado de baja correctamente" });
