@@ -61,46 +61,45 @@ const actualizarPerfilAdmin = async (req, res) => {
     const { id } = req.params;
     const { nombre, apellido, telefono } = req.body;
 
-    // Validar ID de MongoDB
     if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ msg: "ID inválido" });
+      return res.status(404).json({ msg: `Lo sentimos, ID inválido` });
     }
 
-    // Buscar al usuario por ID
     const usuario = await Usuario.findById(id);
     if (!usuario) {
       return res.status(404).json({ msg: "Administrador no encontrado" });
     }
 
-    // Validación de campos requeridos (opcional)
-    if (!nombre || !apellido) {
-      return res.status(400).json({ msg: "Nombre y apellido son obligatorios" });
+    usuario.nombre = nombre ?? usuario.nombre;
+    usuario.apellido = apellido ?? usuario.apellido;
+    usuario.telefono = telefono ?? usuario.telefono;
+
+    // Si viene una nueva imagen en req.files.imagen
+    if (req.files?.imagen) {
+      // Si existía una imagen previa en cloudinary, elimínala
+      if (usuario.imagenID) {
+        await cloudinary.uploader.destroy(usuario.imagenID);
+      }
+      // Sube la nueva
+      const { secure_url, public_id } = await cloudinary.uploader.upload(
+        req.files.imagen.tempFilePath,
+        { folder: "ImagenUsuario" }
+      );
+      usuario.imagen = secure_url;
+      usuario.imagenID = public_id;
+
+      // Limpia el tmp
+      await fs.unlink(req.files.imagen.tempFilePath);
     }
 
-    // Proteger campos que no deben cambiarse
-    usuario.nombre = nombre;
-    usuario.apellido = apellido;
-    usuario.telefono = telefono || usuario.telefono;
-
     await usuario.save();
-
-    return res.status(200).json({
-      msg: "Perfil actualizado correctamente",
-      usuario: {
-        nombre: usuario.nombre,
-        apellido: usuario.apellido,
-        telefono: usuario.telefono,
-        email: usuario.email,
-        rol: usuario.rol
-      }
-    });
+    return res.status(200).json({ msg: "Perfil actualizado correctamente", usuario });
 
   } catch (error) {
-    console.error("Error al actualizar perfil:", error);
+    console.error(error);
     return res.status(500).json({ msg: "Error del servidor" });
   }
 };
-
 const actualizarPasswordAdmin = async (req, res) => {
   const { id } = req.params;
   const { passwordAnterior, passwordNuevo } = req.body;
