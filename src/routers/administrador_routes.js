@@ -29,4 +29,5 @@ router.get('/reporte/obtener/:id',verificarTokenJWT, obtenerReportePorId);
 router.get('/reporte/paciente/:pacienteId',verificarTokenJWT, obtenerReportesPorPaciente);
 router.delete('/reporte/eliminar/:id', verificarTokenJWT,eliminarReporte);
 
+
 export default router
