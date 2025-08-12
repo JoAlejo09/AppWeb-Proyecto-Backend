@@ -105,10 +105,41 @@ const actualizarPerfilPaciente = async (req, res) => {
     return res.status(500).json({ msg: "Error del servidor" });
   }
 };
+const actualizarPasswordPaciente = async (req, res) => {
+  const { passwordAnterior, passwordNuevo } = req.body;
+
+  try {
+    if (!passwordAnterior || !passwordNuevo) {
+      return res.status(400).json({ msg: "La contraseña anterior y la nueva son obligatorias" });
+    }
+
+    const id = req.usuario?._id || req.usuario?.id;
+    const usuario = await Usuario.findById(id);
+    if (!usuario) {
+      return res.status(404).json({ msg: "Paciente no encontrado" });
+    }
+
+    const coincide = await usuario.matchPassword(passwordAnterior);
+    if (!coincide) {
+      return res.status(400).json({ msg: "La contraseña anterior no coincide" });
+    }
+
+    usuario.password = await usuario.encrypPassword(passwordNuevo);
+    await usuario.save();
+
+    return res.status(200).json({ msg: "Contraseña actualizada correctamente" });
+
+  } catch (error) {
+    console.error("❌ Error al actualizar la contraseña:", error);
+    return res.status(500).json({ msg: "Error del servidor" });
+  }
+};
+
 
 export{
     confirmarCuentaPaciente,
     perfilPaciente,
-    actualizarPerfilPaciente
+    actualizarPerfilPaciente,
+    actualizarPasswordPaciente
 
 }
