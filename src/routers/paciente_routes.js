@@ -15,7 +15,7 @@ router.get('/confirmar/:token',confirmarCuentaPaciente)
 //Endpoint para obtener el perfil del paciente Y actualizarlo
 router.get('/perfil', verificarTokenJWT,perfilPaciente);
 router.put('/perfil/:id', verificarTokenJWT, actualizarPerfilPaciente);
-router.put('/actualizar-password', verificarTokenJWT, actualizarPasswordPaciente);
+router.put('/actualizar-password/:id', verificarTokenJWT, actualizarPasswordPaciente);
 
 
 //Endpoint para obtener reportes del paciente
