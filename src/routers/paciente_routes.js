@@ -16,11 +16,11 @@ router.get('/confirmar/:token',confirmarCuentaPaciente)
 router.get('/perfil', verificarTokenJWT,perfilPaciente);
 router.put('/perfil/:id', verificarTokenJWT, actualizarPerfilPaciente);
 router.put('/actualizar-password/:id', verificarTokenJWT, actualizarPasswordPaciente);
-
-
+//Endpoint para utilizar recurso que existe
+router.post('/recurso/utilizar', verificarTokenJWT,utilizarRecurso);
 //Endpoint para obtener reportes del paciente
 router.get('/reporte/mis-reportes/:id', verificarTokenJWT, obtenerReportesPorPaciente);
-router.post('/reporte/crear', verificarTokenJWT,crearReporte);
+
 
 //Endpoint para manejar citas
 router.post('/agendar',verificarTokenJWT, agendarCita);
