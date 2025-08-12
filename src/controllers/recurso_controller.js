@@ -127,7 +127,7 @@ const eliminarRecurso = async (req, res) => {
 };
 
 
-export const utilizarRecurso = async (req, res) => {
+const utilizarRecurso = async (req, res) => {
   try {
     const pacienteId = req.usuario._id; // viene del JWT
     const { recursoId, tipo, respuestas } = req.body;
