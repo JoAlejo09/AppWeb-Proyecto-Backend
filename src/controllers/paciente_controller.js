@@ -64,10 +64,6 @@ const actualizarPerfilPaciente = async (req, res) => {
     return res.status(500).json({ msg: "Error del servidor" });
   }
 };// controllers/paciente_controller.js
-import Usuario from '../models/Usuario.js';
-import mongoose from 'mongoose';
-import cloudinary from 'cloudinary';
-import fs from 'fs/promises';
 
 const perfilPaciente = (req, res) => {
   try {
