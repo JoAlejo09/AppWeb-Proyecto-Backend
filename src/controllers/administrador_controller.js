@@ -106,34 +106,27 @@ const actualizarPerfilAdmin = async (req, res) => {
   }
 };
 
+// router: router.put('/actualizar-password', verificarTokenJWT, validarAdmin, actualizarPasswordAdmin);
+
 const actualizarPasswordAdmin = async (req, res) => {
-  const { id } = req.params;
   const { passwordAnterior, passwordNuevo } = req.body;
 
   try {
-    // Validar campos obligatorios
     if (!passwordAnterior || !passwordNuevo) {
       return res.status(400).json({ msg: "La contraseña anterior y la nueva son obligatorias" });
     }
 
-    // Validar ID de MongoDB
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ msg: "ID inválido" });
-    }
-
-    // Buscar usuario
+    const id = req.usuario?._id || req.usuario?.id;
     const usuario = await Usuario.findById(id);
     if (!usuario) {
       return res.status(404).json({ msg: "Administrador no encontrado" });
     }
 
-    // Verificar si la contraseña anterior coincide
     const coincide = await usuario.matchPassword(passwordAnterior);
     if (!coincide) {
       return res.status(400).json({ msg: "La contraseña anterior no coincide" });
     }
 
-    // Cifrar la nueva contraseña y guardar
     usuario.password = await usuario.encrypPassword(passwordNuevo);
     await usuario.save();
 
@@ -144,6 +137,7 @@ const actualizarPasswordAdmin = async (req, res) => {
     return res.status(500).json({ msg: "Error del servidor" });
   }
 };
+
 
 const obtenerPacientes = async (req, res) => {
   try {
