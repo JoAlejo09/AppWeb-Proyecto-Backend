@@ -22,51 +22,6 @@ const confirmarCuentaPaciente = async (req,res)=>{
 }
 const perfilPaciente = (req, res) => {
   try {
-    const usuario = req.usuario;
-
-    const datosPerfil = {
-      id: usuario._id,
-      nombre: usuario.nombre,
-      apellido: usuario.apellido,
-      email: usuario.email,
-      telefono: usuario.telefono,
-      rol: usuario.rol,
-      estado: usuario.estado,
-      confirmEmail: usuario.confirmEmail,
-      fechaCreacion: usuario.fechaCreacion,
-      fechaActualizacion: usuario.fechaActualizacion,
-      token: usuario.token ? usuario.token : null,
-    };
-
-    return res.status(200).json(datosPerfil);
-  } catch (error) {
-    console.error("Error al obtener perfil Paciente:", error);
-    return res.status(500).json({ msg: "Error del servidor" });
-  }
-};
-const actualizarPerfilPaciente = async (req, res) => {
-  try {
-    const { nombre, apellido, telefono } = req.body;
-    const paciente = await Usuario.findById(req.usuario._id);
-
-    if (!paciente || paciente.rol !== "paciente") {
-      return res.status(403).json({ msg: "Acceso denegado" });
-    }
-
-    paciente.nombre = nombre || paciente.nombre;
-    paciente.apellido = apellido || paciente.apellido;
-    paciente.telefono = telefono || paciente.telefono;
-
-    await paciente.save();
-    return res.status(200).json({ msg: "Perfil actualizado", paciente });
-  } catch (error) {
-    console.error("Error al actualizar perfil:", error);
-    return res.status(500).json({ msg: "Error del servidor" });
-  }
-};// controllers/paciente_controller.js
-
-const perfilPaciente = (req, res) => {
-  try {
     const u = req.usuario;
 
     // Mejor devolver campos que realmente existan
