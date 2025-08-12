@@ -1,4 +1,5 @@
-import express from 'express';
+/*
+*/import express from 'express';
 import {actualizarPasswordPaciente,actualizarPerfilPaciente, confirmarCuentaPaciente, perfilPaciente} from '../controllers/paciente_controller.js'
 import { verificarTokenJWT } from '../middlewares/JWT.js';
 import {agendarCitaYpagar, agendarCitaEfectivo, misCitas, eliminarCita} from '../controllers/cita_controller.js';

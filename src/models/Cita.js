@@ -1,4 +1,3 @@
-// models/Cita.js
 import mongoose from 'mongoose';
 
 const citaSchema = new mongoose.Schema({

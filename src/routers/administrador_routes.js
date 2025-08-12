@@ -1,4 +1,5 @@
-import {Router} from 'express'
+/*
+*/import {Router} from 'express'
 import {registro, activarCuenta, perfilAdmin, actualizarPerfilAdmin, actualizarPasswordAdmin,obtenerPacientes,editarPaciente,darDeBajaPaciente} from '../controllers/administrador_controller.js'
 import {verificarTokenJWT} from '../middlewares/JWT.js'
 import {validarAdmin} from '../middlewares/VerificarAuth.js'

@@ -1,4 +1,4 @@
-import Reporte from '../models/Reporte.js';
+/**/import Reporte from '../models/Reporte.js';
 import Recurso from '../models/Recurso.js';
 import Usuario from '../models/Usuario.js';
 import mongoose from 'mongoose';
