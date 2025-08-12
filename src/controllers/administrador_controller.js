@@ -106,8 +106,6 @@ const actualizarPerfilAdmin = async (req, res) => {
   }
 };
 
-// router: router.put('/actualizar-password', verificarTokenJWT, validarAdmin, actualizarPasswordAdmin);
-
 const actualizarPasswordAdmin = async (req, res) => {
   const { passwordAnterior, passwordNuevo } = req.body;
 
