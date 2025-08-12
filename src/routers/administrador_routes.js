@@ -11,7 +11,7 @@ router.post('/registrar',registro)
 router.get('/activar/:token', activarCuenta)
 //Endpoints para manejar el perfil del administrador
 router.get('/perfil', verificarTokenJWT, validarAdmin, perfilAdmin)
-router.put('/perfil/',verificarTokenJWT, validarAdmin, actualizarPerfilAdmin)
+router.put('/perfil',verificarTokenJWT, validarAdmin, actualizarPerfilAdmin)
 router.put('/actualizar-password/:id', verificarTokenJWT, validarAdmin, actualizarPasswordAdmin);
 //Endpoints para manejar pacientes
 router.get('/pacientes', verificarTokenJWT, validarAdmin, obtenerPacientes);
