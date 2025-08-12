@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 import express from 'express';
 import {actualizarPerfilPaciente, confirmarCuentaPaciente, perfilPaciente} from '../controllers/paciente_controller.js'
+=======
+/*
+*/import express from 'express';
+import {actualizarPasswordPaciente,actualizarPerfilPaciente, confirmarCuentaPaciente, perfilPaciente} from '../controllers/paciente_controller.js'
+>>>>>>> 0fc17f8bef6e142076d6b02de2f975acc016b13f
 import { verificarTokenJWT } from '../middlewares/JWT.js';
 import {agendarCita, eliminarCita, pagarCita} from '../controllers/cita_controller.js';
 import { utilizarRecurso } from '../controllers/recurso_controller.js';
