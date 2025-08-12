@@ -5,12 +5,6 @@ import mongoose from 'mongoose'
 import Reporte from '../models/Reporte.js';
 import RespuestaCuestionario from '../models/RespuestaCuestionario.js';
 
-// Crear recurso
-// src/controllers/recurso_controller.js
-import Recurso from '../models/Recurso.js';
-import Cuestionario from '../models/Cuestionario.js';
-import Contenido from '../models/Contenido.js';
-
 const crearRecurso = async (req, res) => {
   try {
     const { tipo, titulo, descripcion, datos } = req.body;
