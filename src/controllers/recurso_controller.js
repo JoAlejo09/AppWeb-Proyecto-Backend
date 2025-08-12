@@ -3,6 +3,7 @@ import Cuestionario from '../models/Cuestionario.js';
 import Contenido from '../models/Contenido.js';    
 import mongoose from 'mongoose'
 import Reporte from '../models/Reporte.js';
+import RespuestaCuestionario from '../models/RespuestaCuestionario.js';
 
 // Crear recurso
 const crearRecurso = async (req, res) => {
@@ -125,48 +126,66 @@ const eliminarRecurso = async (req, res) => {
   }
 };
 
-const utilizarRecurso = async (req, res) => {
+
+export const utilizarRecurso = async (req, res) => {
   try {
-    const recursoId = req.params.id;
-    const { resultado } = req.body;
-    const pacienteId = req.usuario.id;
+    const pacienteId = req.usuario._id; // viene del JWT
+    const { recursoId, tipo, respuestas } = req.body;
 
     const recurso = await Recurso.findById(recursoId);
     if (!recurso || !recurso.activo) {
-      return res.status(404).json({ msg: 'Recurso no encontrado o inactivo' });
+      return res.status(404).json({ msg: "Recurso no disponible" });
     }
 
-    // Validaciones según tipo de recurso
-    if (recurso.tipo === 'contenido') {
-      if (!resultado || !resultado.visto) {
-        return res.status(400).json({ msg: 'Se espera un resultado con { visto: true } para contenido' });
+    if (tipo === 'contenido') {
+      // 1) Solo registro de visto en Reporte
+      const reporte = await Reporte.create({
+        paciente: pacienteId,
+        recurso: recursoId,
+        tipo: 'contenido',
+        resultado: { visto: true }
+      });
+      return res.status(201).json({ msg: 'Contenido marcado como visto', reporte });
+    }
+
+    if (tipo === 'cuestionario') {
+      // 2) Validar cuestionario y guardar respuestas detalladas
+      if (recurso.tipo !== 'cuestionario') {
+        return res.status(400).json({ msg: 'El recurso no es cuestionario' });
       }
-    }
 
-    if (recurso.tipo === 'cuestionario') {
-      if (!resultado || !Array.isArray(resultado.respuestas)) {
-        return res.status(400).json({ msg: 'Se esperan respuestas en un array para cuestionario' });
+      const cuestionario = await Cuestionario.findById(recurso.referencia);
+      if (!cuestionario) {
+        return res.status(404).json({ msg: 'Cuestionario no encontrado' });
       }
+
+      // Guardar respuestas en su colección
+      const docRespuesta = await RespuestaCuestionario.create({
+        paciente: pacienteId,
+        recurso: recursoId,
+        cuestionario: cuestionario._id,
+        respuestas: respuestas || []
+      });
+
+      // Y crear un Reporte resumen con link a la respuesta detallada
+      const reporte = await Reporte.create({
+        paciente: pacienteId,
+        recurso: recursoId,
+        tipo: 'cuestionario',
+        resultado: {
+          respuestaId: docRespuesta._id,
+          totalPreguntas: cuestionario.preguntas.length,
+          respondidas: (respuestas || []).length
+        }
+      });
+
+      return res.status(201).json({ msg: 'Cuestionario respondido', reporte, respuesta: docRespuesta });
     }
 
-    // Crear el reporte
-    const nuevoReporte = new Reporte({
-      paciente: pacienteId,
-      recurso: recurso._id,
-      tipo: recurso.tipo,
-      resultado,
-    });
-
-    await nuevoReporte.save();
-
-    res.status(201).json({
-      msg: 'Uso del recurso registrado correctamente',
-      reporte: nuevoReporte,
-    });
-
+    return res.status(400).json({ msg: 'Tipo inválido' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ msg: 'Error al utilizar el recurso' });
+    res.status(500).json({ msg: "Error al utilizar el recurso" });
   }
 };
 
