@@ -4,7 +4,7 @@ import {verificarTokenJWT} from '../middlewares/JWT.js'
 import {validarAdmin} from '../middlewares/VerificarAuth.js'
 import { crearRecurso, obtenerRecursos, obtenerRecurso,actualizarRecurso, eliminarRecurso} from '../controllers/recurso_controller.js'
 import {crearReporte, obtenerReportes, obtenerReportePorId, obtenerReportesPorPaciente, eliminarReporte} from '../controllers/reporte_controller.js';
-
+import { listarCitas, marcarCumplida, marcarPagadaEfectivo } from '../controllers/cita_controller.js';
 const router = Router()
 //Endpoint para registrar un administrador
 router.post('/registrar',registro)
@@ -28,6 +28,10 @@ router.get('/reporte/obtener', verificarTokenJWT,obtenerReportes);
 router.get('/reporte/obtener/:id',verificarTokenJWT, obtenerReportePorId);
 router.get('/reporte/paciente/:pacienteId',verificarTokenJWT, obtenerReportesPorPaciente);
 router.delete('/reporte/eliminar/:id', verificarTokenJWT,eliminarReporte);
+
+router.get('/citas', verificarTokenJWT, validarAdmin, listarCitas);
+router.patch('/citas/:id/cumplida', verificarTokenJWT, validarAdmin, marcarCumplida);
+router.patch('/citas/:id/pagada-efectivo', verificarTokenJWT, validarAdmin, marcarPagadaEfectivo);
 
 
 export default router

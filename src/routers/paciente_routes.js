@@ -1,7 +1,7 @@
 import express from 'express';
 import {actualizarPasswordPaciente,actualizarPerfilPaciente, confirmarCuentaPaciente, perfilPaciente} from '../controllers/paciente_controller.js'
 import { verificarTokenJWT } from '../middlewares/JWT.js';
-import {agendarCita, eliminarCita, pagarCita} from '../controllers/cita_controller.js';
+import {agendarCitaYpagar, agendarCitaEfectivo, misCitas, eliminarCita} from '../controllers/cita_controller.js';
 import { obtenerRecursos , obtenerRecurso, utilizarRecurso } from '../controllers/recurso_controller.js';
 import {  crearReporte, obtenerReportesPorPaciente } from '../controllers/reporte_controller.js';
 
@@ -23,9 +23,16 @@ router.get('/reporte/mis-reportes/:pacienteId', verificarTokenJWT, obtenerReport
 
 
 //Endpoint para manejar citas
-router.post('/agendar',verificarTokenJWT, agendarCita);
-router.delete('/:id', verificarTokenJWT, eliminarCita);
-router.post('/pagar', verificarTokenJWT, pagarCita);
+router.post('/cita/agendar-pagar', verificarTokenJWT, agendarCitaYpagar);
+
+// Agendar con efectivo (pendiente)
+router.post('/cita/agendar-efectivo', verificarTokenJWT, agendarCitaEfectivo);
+
+// Listar mis citas
+router.get('/cita/mis-citas', verificarTokenJWT, misCitas);
+
+// Eliminar
+router.delete('/cita/:id', verificarTokenJWT, eliminarCita);
 
 export default router
 
