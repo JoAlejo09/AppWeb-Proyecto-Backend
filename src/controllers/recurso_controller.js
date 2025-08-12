@@ -6,6 +6,11 @@ import Reporte from '../models/Reporte.js';
 import RespuestaCuestionario from '../models/RespuestaCuestionario.js';
 
 // Crear recurso
+// src/controllers/recurso_controller.js
+import Recurso from '../models/Recurso.js';
+import Cuestionario from '../models/Cuestionario.js';
+import Contenido from '../models/Contenido.js';
+
 const crearRecurso = async (req, res) => {
   try {
     const { tipo, titulo, descripcion, datos } = req.body;
@@ -13,29 +18,26 @@ const crearRecurso = async (req, res) => {
     let referencia, tipoRef;
 
     if (tipo === "cuestionario") {
-      const nuevoCuestionario = new Cuestionario(datos);
-      await nuevoCuestionario.save();
-      referencia = nuevoCuestionario._id;
-      tipoRef = "cuestionario";
+      const doc = await Cuestionario.create(datos);
+      referencia = doc._id;
+      tipoRef = "Cuestionario"; // <-- nombre del modelo
     } else if (tipo === "contenido") {
-      const nuevoContenido = new Contenido(datos);
-      await nuevoContenido.save();
-      referencia = nuevoContenido._id;
-      tipoRef = "contenido";
+      const doc = await Contenido.create(datos);
+      referencia = doc._id;
+      tipoRef = "Contenido"; // <-- nombre del modelo
     } else {
       return res.status(400).json({ msg: "Tipo de recurso inválido" });
     }
 
-    const nuevoRecurso = new Recurso({
+    const recurso = await Recurso.create({
       titulo,
       descripcion,
-      tipo,
-      referencia,
-      tipoRef
+      tipo,        // 'cuestionario' | 'contenido'
+      referencia,  // ObjectId
+      tipoRef      // 'Cuestionario' | 'Contenido'
     });
 
-    await nuevoRecurso.save();
-    res.status(201).json({ msg: "Recurso creado correctamente", recurso: nuevoRecurso });
+    return res.status(201).json({ msg: "Recurso creado correctamente", recurso });
 
   } catch (error) {
     console.error(error);
