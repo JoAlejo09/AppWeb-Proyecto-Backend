@@ -37,7 +37,9 @@ const perfilPaciente = (req, res) => {
       imagen: u.imagen || null,
       imagenIA: u.imagenIA || null,
       createdAt: u.createdAt,
-      updatedAt: u.updatedAt
+      updatedAt: u.updatedAt,
+      token: u.token ? u.token : null,
+
     });
 
   } catch (error) {
