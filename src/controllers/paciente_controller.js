@@ -26,7 +26,7 @@ const perfilPaciente = (req, res) => {
 
     // Mejor devolver campos que realmente existan
     return res.status(200).json({
-      id: u._id,
+      _id: u._id,
       nombre: u.nombre,
       apellido: u.apellido,
       email: u.email,
