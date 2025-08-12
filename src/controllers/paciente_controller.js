@@ -1,4 +1,7 @@
 import Usuario from "../models/Usuario.js";
+import mongoose from 'mongoose';
+import cloudinary from 'cloudinary';
+import fs from 'fs/promises';
 
 const confirmarCuentaPaciente = async (req,res)=>{
     const{token} = req.params;
@@ -19,45 +22,115 @@ const confirmarCuentaPaciente = async (req,res)=>{
 }
 const perfilPaciente = (req, res) => {
   try {
-    const usuario = req.usuario;
+    const u = req.usuario;
 
-    const datosPerfil = {
-      id: usuario._id,
-      nombre: usuario.nombre,
-      apellido: usuario.apellido,
-      email: usuario.email,
-      telefono: usuario.telefono,
-      rol: usuario.rol,
-      estado: usuario.estado,
-      confirmEmail: usuario.confirmEmail,
-      fechaCreacion: usuario.fechaCreacion,
-      fechaActualizacion: usuario.fechaActualizacion,
-      token: usuario.token ? usuario.token : null,
-    };
+    // Mejor devolver campos que realmente existan
+    return res.status(200).json({
+      _id: u._id,
+      nombre: u.nombre,
+      apellido: u.apellido,
+      email: u.email,
+      telefono: u.telefono,
+      rol: u.rol,
+      activo: u.activo,          // en tu modelo existe "activo"
+      confirmEmail: u.confirmEmail,
+      imagen: u.imagen || null,
+      imagenIA: u.imagenIA || null,
+      createdAt: u.createdAt,
+      updatedAt: u.updatedAt,
+      token: u.token ? u.token : null,
 
-    return res.status(200).json(datosPerfil);
+    });
+
   } catch (error) {
     console.error("Error al obtener perfil Paciente:", error);
     return res.status(500).json({ msg: "Error del servidor" });
   }
 };
-const actualizarPerfilPaciente = async (req, res) => {
-  try {
-    const { nombre, apellido, telefono } = req.body;
-    const paciente = await Usuario.findById(req.usuario._id);
 
-    if (!paciente || paciente.rol !== "paciente") {
-      return res.status(403).json({ msg: "Acceso denegado" });
+const actualizarPerfilPaciente = async (req, res) => {
+  const { id } = req.params;
+  const { nombre, apellido, telefono } = req.body;
+
+  try {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ msg: "ID inválido" });
     }
 
-    paciente.nombre = nombre || paciente.nombre;
-    paciente.apellido = apellido || paciente.apellido;
-    paciente.telefono = telefono || paciente.telefono;
+    const usuario = await Usuario.findById(id);
+    if (!usuario || usuario.rol !== 'paciente') {
+      return res.status(404).json({ msg: "Paciente no encontrado" });
+    }
 
-    await paciente.save();
-    return res.status(200).json({ msg: "Perfil actualizado", paciente });
+    usuario.nombre = nombre ?? usuario.nombre;
+    usuario.apellido = apellido ?? usuario.apellido;
+    usuario.telefono = telefono ?? usuario.telefono;
+
+    // Si viene una nueva imagen
+    if (req.files?.imagen) {
+      // elimina imagen previa en cloudinary (si existe)
+      if (usuario.imagenID) {
+        await cloudinary.uploader.destroy(usuario.imagenID);
+      }
+
+      const { secure_url, public_id } = await cloudinary.uploader.upload(
+        req.files.imagen.tempFilePath,
+        { folder: "ImagenUsuario" }
+      );
+
+      usuario.imagen = secure_url;
+      usuario.imagenID = public_id;
+
+      // limpiar tmp
+      await fs.unlink(req.files.imagen.tempFilePath);
+    }
+
+    await usuario.save();
+
+    return res.status(200).json({
+      msg: "Perfil actualizado correctamente",
+      usuario: {
+        id: usuario._id,
+        nombre: usuario.nombre,
+        apellido: usuario.apellido,
+        email: usuario.email,
+        telefono: usuario.telefono,
+        imagen: usuario.imagen || null,
+        imagenIA: usuario.imagenIA || null
+      }
+    });
+
   } catch (error) {
-    console.error("Error al actualizar perfil:", error);
+    console.error(error);
+    return res.status(500).json({ msg: "Error del servidor" });
+  }
+};
+const actualizarPasswordPaciente = async (req, res) => {
+  const { passwordAnterior, passwordNuevo } = req.body;
+
+  try {
+    if (!passwordAnterior || !passwordNuevo) {
+      return res.status(400).json({ msg: "La contraseña anterior y la nueva son obligatorias" });
+    }
+
+    const id = req.usuario?._id || req.usuario?.id;
+    const usuario = await Usuario.findById(id);
+    if (!usuario) {
+      return res.status(404).json({ msg: "Paciente no encontrado" });
+    }
+
+    const coincide = await usuario.matchPassword(passwordAnterior);
+    if (!coincide) {
+      return res.status(400).json({ msg: "La contraseña anterior no coincide" });
+    }
+
+    usuario.password = await usuario.encrypPassword(passwordNuevo);
+    await usuario.save();
+
+    return res.status(200).json({ msg: "Contraseña actualizada correctamente" });
+
+  } catch (error) {
+    console.error("❌ Error al actualizar la contraseña:", error);
     return res.status(500).json({ msg: "Error del servidor" });
   }
 };
@@ -66,6 +139,7 @@ const actualizarPerfilPaciente = async (req, res) => {
 export{
     confirmarCuentaPaciente,
     perfilPaciente,
-    actualizarPerfilPaciente
+    actualizarPerfilPaciente,
+    actualizarPasswordPaciente
 
 }

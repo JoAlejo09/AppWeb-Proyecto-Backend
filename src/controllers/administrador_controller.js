@@ -36,7 +36,7 @@ const perfilAdmin = (req, res) => {
     const usuario = req.usuario;
 
     const datosPerfil = {
-      id: usuario._id,
+      _id: usuario._id,
       nombre: usuario.nombre,
       apellido: usuario.apellido,
       email: usuario.email,
@@ -58,77 +58,73 @@ const perfilAdmin = (req, res) => {
 
 const actualizarPerfilAdmin = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { nombre, apellido, telefono } = req.body;
-
-    // Validar ID de MongoDB
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ msg: "ID inválido" });
+    // El ID lo tomamos del usuario autenticado (middleware verificarTokenJWT)
+    const id = req.usuario?._id || req.usuario?.id;
+    if (!id || !mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ msg: "No se pudo determinar el usuario autenticado" });
     }
 
-    // Buscar al usuario por ID
+    const { nombre, apellido, telefono } = req.body;
     const usuario = await Usuario.findById(id);
     if (!usuario) {
       return res.status(404).json({ msg: "Administrador no encontrado" });
     }
 
-    // Validación de campos requeridos (opcional)
-    if (!nombre || !apellido) {
-      return res.status(400).json({ msg: "Nombre y apellido son obligatorios" });
-    }
+    // Actualizar campos básicos
+    if (typeof nombre !== 'undefined') usuario.nombre = nombre;
+    if (typeof apellido !== 'undefined') usuario.apellido = apellido;
+    if (typeof telefono !== 'undefined') usuario.telefono = telefono;
 
-    // Proteger campos que no deben cambiarse
-    usuario.nombre = nombre;
-    usuario.apellido = apellido;
-    usuario.telefono = telefono || usuario.telefono;
+    // Si viene una imagen nueva (campo 'imagen')
+    if (req.files?.imagen) {
+      // Elimina la anterior de Cloudinary si existe
+      if (usuario.imagenID) {
+        await cloudinary.uploader.destroy(usuario.imagenID);
+      }
+
+      const { secure_url, public_id } = await cloudinary.uploader.upload(
+        req.files.imagen.tempFilePath,
+        { folder: 'ImagenUsuario' }
+      );
+
+      usuario.imagen = secure_url;
+      usuario.imagenID = public_id;
+
+      await fs.unlink(req.files.imagen.tempFilePath);
+    }
 
     await usuario.save();
 
-    return res.status(200).json({
-      msg: "Perfil actualizado correctamente",
-      usuario: {
-        nombre: usuario.nombre,
-        apellido: usuario.apellido,
-        telefono: usuario.telefono,
-        email: usuario.email,
-        rol: usuario.rol
-      }
-    });
+    // Devuelve el usuario actualizado (con _id asegurado)
+    const userResponse = usuario.toObject();
+    userResponse._id = usuario._id;
 
+    return res.status(200).json({ msg: "Perfil actualizado correctamente", usuario: userResponse });
   } catch (error) {
-    console.error("Error al actualizar perfil:", error);
+    console.error(error);
     return res.status(500).json({ msg: "Error del servidor" });
   }
 };
 
 const actualizarPasswordAdmin = async (req, res) => {
-  const { id } = req.params;
   const { passwordAnterior, passwordNuevo } = req.body;
 
   try {
-    // Validar campos obligatorios
     if (!passwordAnterior || !passwordNuevo) {
       return res.status(400).json({ msg: "La contraseña anterior y la nueva son obligatorias" });
     }
 
-    // Validar ID de MongoDB
-    if (!mongoose.Types.ObjectId.isValid(id)) {
-      return res.status(400).json({ msg: "ID inválido" });
-    }
-
-    // Buscar usuario
+    const id = req.usuario?._id || req.usuario?.id;
     const usuario = await Usuario.findById(id);
     if (!usuario) {
       return res.status(404).json({ msg: "Administrador no encontrado" });
     }
 
-    // Verificar si la contraseña anterior coincide
     const coincide = await usuario.matchPassword(passwordAnterior);
     if (!coincide) {
       return res.status(400).json({ msg: "La contraseña anterior no coincide" });
     }
 
-    // Cifrar la nueva contraseña y guardar
     usuario.password = await usuario.encrypPassword(passwordNuevo);
     await usuario.save();
 
@@ -139,6 +135,7 @@ const actualizarPasswordAdmin = async (req, res) => {
     return res.status(500).json({ msg: "Error del servidor" });
   }
 };
+
 
 const obtenerPacientes = async (req, res) => {
   try {
@@ -180,7 +177,7 @@ const darDeBajaPaciente = async (req, res) => {
       return res.status(404).json({ msg: "Paciente no encontrado" });
     }
 
-    paciente.estado = false; // o paciente.activo = false;
+    paciente.activo = false; // o paciente.activo = false;
     await paciente.save();
 
     return res.status(200).json({ msg: "Paciente dado de baja correctamente" });
