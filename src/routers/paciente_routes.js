@@ -2,7 +2,7 @@ import express from 'express';
 import {actualizarPasswordPaciente,actualizarPerfilPaciente, confirmarCuentaPaciente, perfilPaciente} from '../controllers/paciente_controller.js'
 import { verificarTokenJWT } from '../middlewares/JWT.js';
 import {agendarCita, eliminarCita, pagarCita} from '../controllers/cita_controller.js';
-import { utilizarRecurso } from '../controllers/recurso_controller.js';
+import { obtenerRecursos , obtenerRecurso, utilizarRecurso } from '../controllers/recurso_controller.js';
 import {  crearReporte, obtenerMisReportes, obtenerReportesPorPaciente } from '../controllers/reporte_controller.js';
 
 
@@ -15,6 +15,8 @@ router.get('/perfil', verificarTokenJWT,perfilPaciente);
 router.put('/perfil/:id', verificarTokenJWT, actualizarPerfilPaciente);
 router.put('/actualizar-password/:id', verificarTokenJWT, actualizarPasswordPaciente);
 //Endpoint para utilizar recurso que existe
+router.get('/recurso/lista', verificarTokenJWT, obtenerRecursos);
+router.get('/recurso/:id', verificarTokenJWT, obtenerRecurso);
 router.post('/recurso/utilizar', verificarTokenJWT,utilizarRecurso);
 //Endpoint para obtener reportes del paciente
 router.get('/reporte/mis-reportes/:id', verificarTokenJWT, obtenerReportesPorPaciente);
