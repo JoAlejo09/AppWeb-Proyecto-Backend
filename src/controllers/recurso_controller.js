@@ -4,22 +4,23 @@ import Contenido from '../models/Contenido.js';
 import mongoose from 'mongoose'
 import Reporte from '../models/Reporte.js';
 
+// Crear recurso
 const crearRecurso = async (req, res) => {
   try {
     const { tipo, titulo, descripcion, datos } = req.body;
 
-    let ref, tipoRef;
+    let referencia, tipoRef;
 
     if (tipo === "cuestionario") {
       const nuevoCuestionario = new Cuestionario(datos);
       await nuevoCuestionario.save();
-      ref = nuevoCuestionario._id;
-      tipoRef = "cuestionario"; // nombre exacto del modelo
+      referencia = nuevoCuestionario._id;
+      tipoRef = "cuestionario";
     } else if (tipo === "contenido") {
       const nuevoContenido = new Contenido(datos);
       await nuevoContenido.save();
-      ref = nuevoContenido._id;
-      tipoRef = "contenido"; // nombre exacto del modelo
+      referencia = nuevoContenido._id;
+      tipoRef = "contenido";
     } else {
       return res.status(400).json({ msg: "Tipo de recurso inválido" });
     }
@@ -28,7 +29,7 @@ const crearRecurso = async (req, res) => {
       titulo,
       descripcion,
       tipo,
-      ref,
+      referencia,
       tipoRef
     });
 
@@ -44,7 +45,7 @@ const crearRecurso = async (req, res) => {
 const obtenerRecursos = async (req, res) => {
   try {
     const recursos = await Recurso.find()
-      .populate("referencia") // popula con cuestionario o contenido según tipo
+      .populate("referencia") // ahora sí existe
       .lean();
 
     res.status(200).json(recursos);
@@ -54,7 +55,6 @@ const obtenerRecursos = async (req, res) => {
   }
 };
 
-// Obtener un recurso por ID
 const obtenerRecurso = async (req, res) => {
   try {
     const { id } = req.params;
@@ -71,11 +71,10 @@ const obtenerRecurso = async (req, res) => {
     res.status(200).json(recurso);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ msg: "Error al obtsener el recurso" });
+    res.status(500).json({ msg: "Error al obtener el recurso" });
   }
 };
 
-// Actualizar recurso
 const actualizarRecurso = async (req, res) => {
   try {
     const { id } = req.params;
@@ -90,9 +89,9 @@ const actualizarRecurso = async (req, res) => {
     recurso.descripcion = descripcion || recurso.descripcion;
 
     if (recurso.tipo === "cuestionario") {
-      await Cuestionario.findByIdAndUpdate(recurso.ref, datos);
+      await Cuestionario.findByIdAndUpdate(recurso.referencia, datos);
     } else if (recurso.tipo === "contenido") {
-      await Contenido.findByIdAndUpdate(recurso.ref, datos);
+      await Contenido.findByIdAndUpdate(recurso.referencia, datos);
     }
 
     await recurso.save();
@@ -103,7 +102,6 @@ const actualizarRecurso = async (req, res) => {
   }
 };
 
-// Eliminar recurso
 const eliminarRecurso = async (req, res) => {
   try {
     const { id } = req.params;
@@ -120,13 +118,13 @@ const eliminarRecurso = async (req, res) => {
     }
 
     await Recurso.findByIdAndDelete(id);
-
     res.status(200).json({ msg: "Recurso eliminado correctamente" });
   } catch (error) {
     console.error(error);
     res.status(500).json({ msg: "Error al eliminar recurso" });
   }
 };
+
 const utilizarRecurso = async (req, res) => {
   try {
     const recursoId = req.params.id;
